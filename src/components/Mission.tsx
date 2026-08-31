@@ -1,17 +1,18 @@
 import { useState } from 'react';
-import { missionPrompts } from '../data/unit1';
+import type { MissionPrompt } from '../data/types';
 
 type Props = {
+  prompts: MissionPrompt[];
   completedIds: string[];
   onComplete: (missionId: string) => void;
 };
 
-export function Mission({ completedIds, onComplete }: Props) {
+export function Mission({ prompts, completedIds, onComplete }: Props) {
   const [index, setIndex] = useState(0);
   const [text, setText] = useState('');
   const [submitted, setSubmitted] = useState(false);
 
-  const mission = missionPrompts[index];
+  const mission = prompts[index];
 
   const submit = () => {
     if (!text.trim() || !mission) return;
@@ -20,7 +21,7 @@ export function Mission({ completedIds, onComplete }: Props) {
   };
 
   const next = () => {
-    if (index + 1 < missionPrompts.length) {
+    if (index + 1 < prompts.length) {
       setIndex((i) => i + 1);
       setText('');
       setSubmitted(false);
@@ -32,7 +33,7 @@ export function Mission({ completedIds, onComplete }: Props) {
   return (
     <div className="study-view">
       <div className="mission-tabs">
-        {missionPrompts.map((m, i) => (
+        {prompts.map((m, i) => (
           <button
             key={m.id}
             type="button"
@@ -74,7 +75,7 @@ export function Mission({ completedIds, onComplete }: Props) {
           ) : (
             <div className="mission-done">
               <p className="feedback feedback--correct">Mission enregistrée — bravo !</p>
-              {index + 1 < missionPrompts.length && (
+              {index + 1 < prompts.length && (
                 <button type="button" className="btn btn--secondary btn--full" onClick={next}>
                   Mission suivante →
                 </button>

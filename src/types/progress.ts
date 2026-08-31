@@ -1,4 +1,4 @@
-import type { SessionStepId } from '../data/unit1';
+import type { SessionStepId } from '../data/types';
 
 export type ProgressState = {
   completedSteps: SessionStepId[];

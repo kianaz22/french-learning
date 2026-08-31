@@ -23,7 +23,7 @@ type AuthContextValue = {
   continueAsGuest: () => void;
   clearGuest: () => void;
   signOut: () => Promise<void>;
-  onLoginSync: () => Promise<void>;
+  onLoginSync: (unitNumber: number) => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -107,11 +107,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsGuest(true);
   }, []);
 
-  const onLoginSync = useCallback(async () => {
+  const onLoginSync = useCallback(async (unitNumber: number) => {
     const supabase = getSupabase();
     if (!supabase) return;
     const { data } = await supabase.auth.getUser();
-    if (data.user) await syncProgressForUser(data.user.id);
+    if (data.user) await syncProgressForUser(data.user.id, unitNumber);
   }, []);
 
   const value = useMemo(

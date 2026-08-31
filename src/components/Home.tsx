@@ -1,15 +1,29 @@
-import { dailySessionSteps, unit1Meta } from '../data/unit1';
+import { dailySessionSteps, type UnitContent, type SessionStepId } from '../data/types';
 import type { ProgressState } from '../types/progress';
-import type { SessionStepId } from '../data/unit1';
+import { UnitPicker } from './UnitPicker';
 
 type Props = {
+  unit: UnitContent;
+  units: UnitContent[];
   progress: ProgressState;
   todayComplete: boolean;
+  onSelectUnit: (unitNumber: number) => void;
+  onOpenLesson: () => void;
   onSelectStep: (id: SessionStepId) => void;
   onReset: () => void;
 };
 
-export function Home({ progress, todayComplete, onSelectStep, onReset }: Props) {
+export function Home({
+  unit,
+  units,
+  progress,
+  todayComplete,
+  onSelectUnit,
+  onOpenLesson,
+  onSelectStep,
+  onReset,
+}: Props) {
+  const { meta } = unit;
   const completed = progress.completedSteps.length;
   const total = dailySessionSteps.length;
   const pct = Math.round((completed / total) * 100);
@@ -22,9 +36,11 @@ export function Home({ progress, todayComplete, onSelectStep, onReset }: Props) 
         </div>
       )}
 
+      <UnitPicker units={units} currentUnit={meta.number} onSelect={onSelectUnit} />
+
       <section className="card hero-card">
         <p className="eyebrow">L&apos;Atelier Companion</p>
-        <h2 className="hero-title">Unité {unit1Meta.number} — {unit1Meta.title}</h2>
+        <h2 className="hero-title">Unité {meta.number} — {meta.title}</h2>
         <p className="hero-sub">
           ~15 min de pratique pour consolider la leçon entre deux cours.
         </p>
@@ -39,10 +55,24 @@ export function Home({ progress, todayComplete, onSelectStep, onReset }: Props) 
       <section className="card">
         <h3 className="section-title">Objectifs</h3>
         <ul className="objectives">
-          {unit1Meta.objectives.map((obj) => (
+          {meta.objectives.map((obj) => (
             <li key={obj}>{obj}</li>
           ))}
         </ul>
+      </section>
+
+      <section>
+        <h3 className="section-title">Apprendre</h3>
+        <button type="button" className="learn-card card" onClick={onOpenLesson}>
+          <span className="learn-icon">📖</span>
+          <div className="learn-body">
+            <span className="learn-name">Leçon — Unité {meta.number}</span>
+            <span className="learn-desc">
+              Grammaire, vocabulaire, verbes et phrases clés
+            </span>
+          </div>
+          <span className="learn-arrow">→</span>
+        </button>
       </section>
 
       <section>

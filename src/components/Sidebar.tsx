@@ -1,6 +1,5 @@
-import { dailySessionSteps, unit1Meta } from '../data/unit1';
+import { dailySessionSteps, type UnitContent, type SessionStepId } from '../data/types';
 import type { ProgressState, SyncStatus } from '../types/progress';
-import type { SessionStepId } from '../data/unit1';
 
 const stepIcons: Record<SessionStepId, string> = {
   flashcards: '🃏',
@@ -11,13 +10,15 @@ const stepIcons: Record<SessionStepId, string> = {
 };
 
 type Props = {
-  view: 'home' | SessionStepId;
+  unit: UnitContent;
+  view: 'home' | 'learn' | SessionStepId;
   progress: ProgressState;
   syncStatus?: SyncStatus;
-  onNavigate: (view: 'home' | SessionStepId) => void;
+  onNavigate: (view: 'home' | 'learn' | SessionStepId) => void;
 };
 
-export function Sidebar({ view, progress, syncStatus, onNavigate }: Props) {
+export function Sidebar({ unit, view, progress, syncStatus, onNavigate }: Props) {
+  const { meta } = unit;
   const completed = progress.completedSteps.length;
   const total = dailySessionSteps.length;
   const pct = Math.round((completed / total) * 100);
@@ -28,7 +29,7 @@ export function Sidebar({ view, progress, syncStatus, onNavigate }: Props) {
         <span className="sidebar-logo">A1</span>
         <div>
           <p className="sidebar-app">L&apos;Atelier Companion</p>
-          <p className="sidebar-unit">Unité {unit1Meta.number} — {unit1Meta.title}</p>
+          <p className="sidebar-unit">Unité {meta.number} — {meta.title}</p>
         </div>
       </div>
 
@@ -39,7 +40,10 @@ export function Sidebar({ view, progress, syncStatus, onNavigate }: Props) {
         <p className="sidebar-progress-label">
           {completed}/{total} activités · {pct}%
           {progress.streak > 0 && ` · 🔥 ${progress.streak}`}
+          {syncStatus === 'syncing' && ' · syncing'}
           {syncStatus === 'synced' && ' · ☁ synced'}
+          {syncStatus === 'offline' && ' · offline'}
+          {syncStatus === 'error' && ' · sync failed'}
         </p>
       </div>
 
@@ -51,6 +55,18 @@ export function Sidebar({ view, progress, syncStatus, onNavigate }: Props) {
         >
           <span className="sidebar-link-icon">🏠</span>
           <span>Accueil</span>
+        </button>
+
+        <button
+          type="button"
+          className={`sidebar-link ${view === 'learn' ? 'sidebar-link--active' : ''}`}
+          onClick={() => onNavigate('learn')}
+        >
+          <span className="sidebar-link-icon">📖</span>
+          <span className="sidebar-link-text">
+            <span className="sidebar-link-name">Leçon</span>
+            <span className="sidebar-link-desc">Grammaire & vocabulaire</span>
+          </span>
         </button>
 
         <p className="sidebar-nav-label">Session du jour</p>

@@ -24,8 +24,14 @@ export function UserMenu({ syncStatus }: Props) {
       <span
         className={`sync-badge sync-badge--${syncStatus}`}
         title={syncLabel(syncStatus)}
+        aria-label={syncLabel(syncStatus)}
+        aria-live="polite"
       >
-        {syncIcon(syncStatus)}
+        {syncStatus === 'syncing' ? (
+          <span className="sync-spinner sync-spinner--sm" aria-hidden="true" />
+        ) : (
+          syncIcon(syncStatus)
+        )}
       </span>
       <span className="user-email" title={email}>
         {short}

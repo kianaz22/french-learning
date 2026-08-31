@@ -1,5 +1,13 @@
 import { useState } from 'react';
-import { unit1Meta, dailySessionSteps } from './data/unit1';
+import {
+  units,
+  getUnit,
+  loadCurrentUnitNumber,
+  saveCurrentUnitNumber,
+  dailySessionSteps,
+  flashcardCategories,
+  type SessionStepId,
+} from './data';
 import { useAuth } from './contexts/AuthProvider';
 import { useProgress } from './hooks/useProgress';
 import { AuthScreen } from './components/AuthScreen';
@@ -9,26 +17,33 @@ import { Quiz } from './components/Quiz';
 import { FillBlank } from './components/FillBlank';
 import { Conjugation } from './components/Conjugation';
 import { Mission } from './components/Mission';
+import { Lesson } from './components/Lesson';
 import { Sidebar, stepIcons } from './components/Sidebar';
 import { UserMenu } from './components/UserMenu';
-import type { SessionStepId } from './data/unit1';
 
-type View = 'home' | SessionStepId;
+type View = 'home' | 'learn' | SessionStepId;
 
 export default function App() {
   const { loading, user, isGuest } = useAuth();
+  const [unitNumber, setUnitNumber] = useState(loadCurrentUnitNumber);
+  const unit = getUnit(unitNumber);
   const {
     progress,
     syncStatus,
-    progressReady,
     updateProgress,
     markStepComplete,
     resetProgress,
     todayComplete,
-  } = useProgress();
+  } = useProgress(unitNumber);
   const [view, setView] = useState<View>('home');
 
   const goHome = () => setView('home');
+
+  const selectUnit = (n: number) => {
+    saveCurrentUnitNumber(n);
+    setUnitNumber(n);
+    setView('home');
+  };
 
   const handleStepComplete = (stepId: SessionStepId) => {
     markStepComplete(stepId);
@@ -39,6 +54,7 @@ export default function App() {
     return (
       <div className="auth-screen">
         <div className="auth-card auth-card--loading">
+          <span className="sync-spinner" aria-hidden="true" />
           <p className="auth-sub">Chargement…</p>
         </div>
       </div>
@@ -49,31 +65,35 @@ export default function App() {
     return <AuthScreen />;
   }
 
-  if (!progressReady) {
-    return (
-      <div className="auth-screen">
-        <div className="auth-card auth-card--loading">
-          <p className="auth-sub">Syncing your progress…</p>
-        </div>
-      </div>
-    );
-  }
+  const { meta, flashcards, multipleChoice, fillBlank, conjugationExercises, missionPrompts } = unit;
+  const categories = flashcardCategories(unit);
 
   return (
     <div className="app-shell">
-      <Sidebar view={view} progress={progress} onNavigate={setView} syncStatus={syncStatus} />
+      <Sidebar
+        unit={unit}
+        view={view}
+        progress={progress}
+        onNavigate={setView}
+        syncStatus={syncStatus}
+      />
 
       <div className="app">
         <header className="header">
+          {syncStatus === 'syncing' && <div className="sync-bar" aria-hidden="true" />}
           {view !== 'home' && (
             <button type="button" className="back-btn" onClick={goHome} aria-label="Back">
               ←
             </button>
           )}
           <div className="header-text">
-            <span className="header-level">A1 · Unité {unit1Meta.number}</span>
+            <span className="header-level">A1 · Unité {meta.number}</span>
             <h1 className="header-title">
-              {view === 'home' ? unit1Meta.title : getStepLabel(view)}
+              {view === 'home'
+                ? meta.title
+                : view === 'learn'
+                  ? 'Leçon'
+                  : getStepLabel(view, dailySessionSteps)}
             </h1>
           </div>
           <div className="header-actions">
@@ -89,14 +109,26 @@ export default function App() {
         <main className="main">
           {view === 'home' && (
             <Home
+              unit={unit}
+              units={units}
               progress={progress}
               todayComplete={todayComplete}
+              onSelectUnit={selectUnit}
+              onOpenLesson={() => setView('learn')}
               onSelectStep={(id) => setView(id)}
               onReset={resetProgress}
             />
           )}
+          {view === 'learn' && (
+            <Lesson
+              unit={unit}
+              onStartPractice={() => setView('flashcards')}
+            />
+          )}
           {view === 'flashcards' && (
             <Flashcards
+              flashcards={flashcards}
+              categories={categories}
               onComplete={(scores) => {
                 updateProgress({ flashcardScores: scores });
                 handleStepComplete('flashcards');
@@ -105,6 +137,7 @@ export default function App() {
           )}
           {view === 'quiz' && (
             <Quiz
+              questions={multipleChoice}
               onComplete={(score) => {
                 updateProgress({ quizScore: score });
                 handleStepComplete('quiz');
@@ -113,6 +146,7 @@ export default function App() {
           )}
           {view === 'fill' && (
             <FillBlank
+              exercises={fillBlank}
               onComplete={(score) => {
                 updateProgress({ fillScore: score });
                 handleStepComplete('fill');
@@ -121,6 +155,7 @@ export default function App() {
           )}
           {view === 'conjugate' && (
             <Conjugation
+              exercises={conjugationExercises}
               onComplete={() => {
                 updateProgress({ conjugationComplete: true });
                 handleStepComplete('conjugate');
@@ -129,6 +164,7 @@ export default function App() {
           )}
           {view === 'mission' && (
             <Mission
+              prompts={missionPrompts}
               completedIds={progress.missionsCompleted}
               onComplete={(missionId) => {
                 updateProgress({
@@ -170,6 +206,9 @@ export default function App() {
   );
 }
 
-function getStepLabel(view: SessionStepId): string {
-  return dailySessionSteps.find((s) => s.id === view)?.label ?? view;
+function getStepLabel(
+  view: SessionStepId,
+  steps: ReadonlyArray<{ id: SessionStepId; label: string }>,
+): string {
+  return steps.find((s) => s.id === view)?.label ?? view;
 }

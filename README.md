@@ -1,6 +1,18 @@
 # L'Atelier Companion
 
-A mobile-first PWA to practice **L'Atelier A1 — Unité 1** (*C'est qui ?*) on days between class.
+A mobile-first PWA to practice **L'Atelier A1 — Unités 1–3** on days between class.
+
+## Units
+
+| Unité | Title | Topics |
+|-------|-------|--------|
+| 1 | *C'est qui ?* | Greetings, introductions, être / avoir / s'appeler |
+| 2 | *On fait quoi ce week-end ?* | Objects, hobbies, sports, aimer / faire / aller |
+| 3 | *On va où cet été ?* | Weather, city, directions, futur proche, venir / prendre |
+
+Switch units from the home screen — progress is saved separately per unit.
+
+Each unit includes a **Leçon** section (grammar, vocabulary, verb tables, key phrases) to study before the daily exercises.
 
 ## Run locally
 
@@ -50,12 +62,14 @@ On first sign-in, local progress is **merged** with any cloud data (best streak,
 
 ## Daily session (~15 min)
 
+Study the **Leçon** first, then complete the practice steps:
+
 | Step | Activity |
 |------|----------|
 | Cartes | Flashcards — vocab by category |
 | Quiz | Multiple choice grammar & vocab |
 | Phrases | Fill-in-the-blank |
-| Verbes | Conjugate s'appeler, être, avoir |
+| Verbes | Conjugation drill (unit-specific verbs) |
 | Mission | Writing prompts (self-check) |
 
 ## Stack

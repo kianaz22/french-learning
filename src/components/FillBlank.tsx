@@ -1,7 +1,10 @@
-import { useState } from 'react';
-import { fillBlank } from '../data/unit1';
+import { useMemo, useState } from 'react';
+import type { FillBlankExercise } from '../data/types';
+import { FILL_SESSION_SIZE } from '../data/types';
+import { sampleSession } from '../lib/exerciseSession';
 
 type Props = {
+  exercises: FillBlankExercise[];
   onComplete: (score: number) => void;
 };
 
@@ -13,14 +16,18 @@ function normalize(s: string) {
     .replace(/[\u0300-\u036f]/g, '');
 }
 
-export function FillBlank({ onComplete }: Props) {
+export function FillBlank({ exercises, onComplete }: Props) {
+  const session = useMemo(
+    () => sampleSession(exercises, FILL_SESSION_SIZE),
+    [exercises],
+  );
   const [index, setIndex] = useState(0);
   const [input, setInput] = useState('');
   const [feedback, setFeedback] = useState<'correct' | 'wrong' | null>(null);
   const [correct, setCorrect] = useState(0);
   const [finished, setFinished] = useState(false);
 
-  const ex = fillBlank[index];
+  const ex = session[index];
 
   const check = () => {
     if (!ex || feedback) return;
@@ -30,7 +37,7 @@ export function FillBlank({ onComplete }: Props) {
     if (ok) setCorrect(newCorrect);
 
     setTimeout(() => {
-      if (index + 1 >= fillBlank.length) {
+      if (index + 1 >= session.length) {
         setFinished(true);
         onComplete(newCorrect);
       } else {
@@ -47,8 +54,11 @@ export function FillBlank({ onComplete }: Props) {
         <div className="result-icon">✎</div>
         <h2>Phrases terminées</h2>
         <p>
-          {correct}/{fillBlank.length} correct
+          {correct}/{session.length} correct
         </p>
+        {exercises.length > session.length && (
+          <p className="hint">Banque : {exercises.length} phrases — un nouveau set à chaque session</p>
+        )}
       </div>
     );
   }
@@ -59,9 +69,14 @@ export function FillBlank({ onComplete }: Props) {
 
   return (
     <div className="study-view">
-      <span className="counter">
-        {index + 1}/{fillBlank.length}
-      </span>
+      <div className="session-meta">
+        <span className="counter">
+          {index + 1}/{session.length}
+        </span>
+        {exercises.length > session.length && (
+          <span className="session-pool">banque de {exercises.length}</span>
+        )}
+      </div>
 
       <div className="fill-prompt">
         {parts[0]}

@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { conjugationExercises } from '../data/unit1';
+import type { ConjugationExercise } from '../data/types';
 
 type Props = {
+  exercises: ConjugationExercise[];
   onComplete: () => void;
 };
 
@@ -13,14 +14,14 @@ function normalize(s: string) {
     .replace(/[\u0300-\u036f]/g, '');
 }
 
-export function Conjugation({ onComplete }: Props) {
+export function Conjugation({ exercises, onComplete }: Props) {
   const [verbIndex, setVerbIndex] = useState(0);
   const [rowIndex, setRowIndex] = useState(0);
   const [input, setInput] = useState('');
   const [feedback, setFeedback] = useState<'correct' | 'wrong' | null>(null);
   const [finished, setFinished] = useState(false);
 
-  const exercise = conjugationExercises[verbIndex];
+  const exercise = exercises[verbIndex];
   const row = exercise?.rows[rowIndex];
 
   const check = () => {
@@ -33,7 +34,7 @@ export function Conjugation({ onComplete }: Props) {
       setFeedback(null);
 
       if (rowIndex + 1 >= exercise.rows.length) {
-        if (verbIndex + 1 >= conjugationExercises.length) {
+        if (verbIndex + 1 >= exercises.length) {
           setFinished(true);
           onComplete();
         } else {
@@ -51,16 +52,16 @@ export function Conjugation({ onComplete }: Props) {
       <div className="result-screen">
         <div className="result-icon">↻</div>
         <h2>Conjugaison terminée</h2>
-        <p>s&apos;appeler, être et avoir — présent ✓</p>
+        <p>{exercises.map((e) => e.verb).join(', ')} — présent ✓</p>
       </div>
     );
   }
 
   if (!exercise || !row) return null;
 
-  const totalRows = conjugationExercises.reduce((n, e) => n + e.rows.length, 0);
+  const totalRows = exercises.reduce((n, e) => n + e.rows.length, 0);
   const doneRows =
-    conjugationExercises.slice(0, verbIndex).reduce((n, e) => n + e.rows.length, 0) + rowIndex;
+    exercises.slice(0, verbIndex).reduce((n, e) => n + e.rows.length, 0) + rowIndex;
 
   return (
     <div className="study-view">

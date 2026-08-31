@@ -1,14 +1,29 @@
-import type { SessionStepId } from '../data/unit1';
+import type { SessionStepId } from '../data/types';
 import { getSupabase } from './supabase';
 import { defaultProgress, type ProgressState } from '../types/progress';
 
-export const STORAGE_KEY = 'latelier-unit1-progress';
-export const CURRENT_UNIT = 1;
 export const GUEST_KEY = 'latelier-guest-mode';
 
-export function loadLocalProgress(): ProgressState {
+export function storageKey(unitNumber: number) {
+  return `latelier-unit${unitNumber}-progress`;
+}
+
+/** Migrate legacy unit-1-only key */
+function migrateLegacyUnit1() {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const legacy = localStorage.getItem('latelier-unit1-progress');
+    if (legacy && !localStorage.getItem(storageKey(1))) {
+      localStorage.setItem(storageKey(1), legacy);
+    }
+  } catch {
+    /* ignore */
+  }
+}
+
+export function loadLocalProgress(unitNumber: number): ProgressState {
+  migrateLegacyUnit1();
+  try {
+    const raw = localStorage.getItem(storageKey(unitNumber));
     if (raw) return { ...defaultProgress, ...JSON.parse(raw) };
   } catch {
     /* ignore */
@@ -16,8 +31,8 @@ export function loadLocalProgress(): ProgressState {
   return { ...defaultProgress };
 }
 
-export function saveLocalProgress(state: ProgressState) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+export function saveLocalProgress(unitNumber: number, state: ProgressState) {
+  localStorage.setItem(storageKey(unitNumber), JSON.stringify(state));
 }
 
 export function isGuestMode(): boolean {
@@ -71,7 +86,10 @@ export function mergeProgress(local: ProgressState, remote: ProgressState): Prog
   };
 }
 
-export async function fetchRemoteProgress(userId: string): Promise<ProgressState | null> {
+export async function fetchRemoteProgress(
+  userId: string,
+  unitNumber: number,
+): Promise<ProgressState | null> {
   const supabase = getSupabase();
   if (!supabase) return null;
 
@@ -79,21 +97,25 @@ export async function fetchRemoteProgress(userId: string): Promise<ProgressState
     .from('user_progress')
     .select('progress')
     .eq('user_id', userId)
-    .eq('unit_number', CURRENT_UNIT)
+    .eq('unit_number', unitNumber)
     .maybeSingle();
 
   if (error || !data?.progress) return null;
   return { ...defaultProgress, ...(data.progress as Partial<ProgressState>) };
 }
 
-export async function saveRemoteProgress(userId: string, progress: ProgressState): Promise<void> {
+export async function saveRemoteProgress(
+  userId: string,
+  unitNumber: number,
+  progress: ProgressState,
+): Promise<void> {
   const supabase = getSupabase();
   if (!supabase) return;
 
   const { error } = await supabase.from('user_progress').upsert(
     {
       user_id: userId,
-      unit_number: CURRENT_UNIT,
+      unit_number: unitNumber,
       progress,
       updated_at: new Date().toISOString(),
     },
@@ -103,11 +125,14 @@ export async function saveRemoteProgress(userId: string, progress: ProgressState
   if (error) throw error;
 }
 
-export async function syncProgressForUser(userId: string): Promise<ProgressState> {
-  const local = loadLocalProgress();
-  const remote = await fetchRemoteProgress(userId);
+export async function syncProgressForUser(
+  userId: string,
+  unitNumber: number,
+): Promise<ProgressState> {
+  const local = loadLocalProgress(unitNumber);
+  const remote = await fetchRemoteProgress(userId, unitNumber);
   const merged = remote ? mergeProgress(local, remote) : local;
-  saveLocalProgress(merged);
-  await saveRemoteProgress(userId, merged);
+  saveLocalProgress(unitNumber, merged);
+  await saveRemoteProgress(userId, unitNumber, merged);
   return merged;
 }

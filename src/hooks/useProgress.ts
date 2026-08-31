@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import type { SessionStepId } from '../data/unit1';
+import type { SessionStepId } from '../data/types';
 import { useAuth } from '../contexts/AuthProvider';
 import {
   loadLocalProgress,
+  mergeProgress,
   saveLocalProgress,
   saveRemoteProgress,
   syncProgressForUser,
@@ -15,66 +16,77 @@ function today(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
-export function useProgress() {
+export function useProgress(unitNumber: number) {
   const { user, isGuest, onLoginSync } = useAuth();
-  const [progress, setProgress] = useState<ProgressState>(loadLocalProgress);
-  const [syncStatus, setSyncStatus] = useState<SyncStatus>('idle');
-  const [ready, setReady] = useState(false);
+  const [progress, setProgress] = useState<ProgressState>(() => loadLocalProgress(unitNumber));
+  const [syncStatus, setSyncStatus] = useState<SyncStatus>(user ? 'syncing' : 'idle');
+  const [cloudReady, setCloudReady] = useState(!user);
   const syncTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const lastSyncedUser = useRef<string | null>(null);
+  const lastSynced = useRef<string | null>(null);
+  const progressForUnit = useRef(unitNumber);
 
-  // Load & merge from cloud when user signs in
+  const syncKey = user ? `${user.id}:${unitNumber}` : null;
+
+  // Always write to the unit this progress belongs to, before any unit switch.
+  useEffect(() => {
+    saveLocalProgress(progressForUnit.current, progress);
+  }, [progress]);
+
+  useEffect(() => {
+    if (progressForUnit.current !== unitNumber) {
+      progressForUnit.current = unitNumber;
+      setProgress(loadLocalProgress(unitNumber));
+    }
+    lastSynced.current = null;
+    setCloudReady(!user);
+    setSyncStatus(user ? 'syncing' : 'idle');
+  }, [unitNumber, user]);
+
+  // Merge from cloud in the background — the app stays usable on local data.
   useEffect(() => {
     if (!user) {
-      setReady(true);
+      setCloudReady(true);
       setSyncStatus('idle');
       return;
     }
 
-    if (lastSyncedUser.current === user.id) {
-      setReady(true);
+    if (lastSynced.current === syncKey) {
+      setCloudReady(true);
       return;
     }
 
     let cancelled = false;
-    setReady(false);
+    setCloudReady(false);
     setSyncStatus('syncing');
 
-    syncProgressForUser(user.id)
+    syncProgressForUser(user.id, unitNumber)
       .then((merged) => {
         if (cancelled) return;
-        setProgress(merged);
+        setProgress((current) => mergeProgress(current, merged));
         setSyncStatus('synced');
-        lastSyncedUser.current = user.id;
-        setReady(true);
+        lastSynced.current = syncKey;
+        setCloudReady(true);
       })
       .catch(() => {
         if (cancelled) return;
         setSyncStatus('error');
-        setReady(true);
+        setCloudReady(true);
       });
 
     return () => {
       cancelled = true;
     };
-  }, [user]);
+  }, [user, unitNumber, syncKey]);
 
-  // Persist locally on every change
   useEffect(() => {
-    if (!ready) return;
-    saveLocalProgress(progress);
-  }, [progress, ready]);
-
-  // Debounced cloud save when logged in
-  useEffect(() => {
-    if (!ready || !user || isGuest) return;
+    if (!cloudReady || !user || isGuest) return;
 
     if (syncTimer.current) clearTimeout(syncTimer.current);
-    setSyncStatus('syncing');
 
     syncTimer.current = setTimeout(async () => {
+      setSyncStatus('syncing');
       try {
-        await saveRemoteProgress(user.id, progress);
+        await saveRemoteProgress(user.id, unitNumber, progress);
         setSyncStatus(navigator.onLine ? 'synced' : 'offline');
       } catch {
         setSyncStatus('error');
@@ -84,14 +96,18 @@ export function useProgress() {
     return () => {
       if (syncTimer.current) clearTimeout(syncTimer.current);
     };
-  }, [progress, user, isGuest, ready]);
+  }, [progress, user, isGuest, cloudReady, unitNumber]);
 
   useEffect(() => {
     const goOffline = () => {
       if (user && !isGuest) setSyncStatus('offline');
     };
     const goOnline = () => {
-      if (user && !isGuest) onLoginSync().then(() => setSyncStatus('synced')).catch(() => setSyncStatus('error'));
+      if (user && !isGuest) {
+        onLoginSync(unitNumber)
+          .then(() => setSyncStatus('synced'))
+          .catch(() => setSyncStatus('error'));
+      }
     };
     window.addEventListener('offline', goOffline);
     window.addEventListener('online', goOnline);
@@ -99,7 +115,7 @@ export function useProgress() {
       window.removeEventListener('offline', goOffline);
       window.removeEventListener('online', goOnline);
     };
-  }, [user, isGuest, onLoginSync]);
+  }, [user, isGuest, onLoginSync, unitNumber]);
 
   const updateProgress = useCallback((patch: Partial<ProgressState>) => {
     setProgress((prev) => {
@@ -151,13 +167,13 @@ export function useProgress() {
     if (user && !isGuest) {
       setSyncStatus('syncing');
       try {
-        await saveRemoteProgress(user.id, defaultProgress);
+        await saveRemoteProgress(user.id, unitNumber, defaultProgress);
         setSyncStatus('synced');
       } catch {
         setSyncStatus('error');
       }
     }
-  }, [user, isGuest]);
+  }, [user, isGuest, unitNumber]);
 
   const sessionComplete = progress.completedSteps.length >= 5;
   const todayComplete = progress.lastSessionDate === today() && sessionComplete;
@@ -165,7 +181,7 @@ export function useProgress() {
   return {
     progress,
     syncStatus,
-    progressReady: ready,
+    progressReady: cloudReady,
     updateProgress,
     markStepComplete,
     resetProgress,

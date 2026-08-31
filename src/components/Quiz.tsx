@@ -1,17 +1,24 @@
-import { useState } from 'react';
-import { multipleChoice } from '../data/unit1';
+import { useMemo, useState } from 'react';
+import type { MultipleChoiceExercise } from '../data/types';
+import { QUIZ_SESSION_SIZE } from '../data/types';
+import { sampleSession } from '../lib/exerciseSession';
 
 type Props = {
+  questions: MultipleChoiceExercise[];
   onComplete: (score: number) => void;
 };
 
-export function Quiz({ onComplete }: Props) {
+export function Quiz({ questions, onComplete }: Props) {
+  const session = useMemo(
+    () => sampleSession(questions, QUIZ_SESSION_SIZE),
+    [questions],
+  );
   const [index, setIndex] = useState(0);
   const [selected, setSelected] = useState<number | null>(null);
   const [correct, setCorrect] = useState(0);
   const [finished, setFinished] = useState(false);
 
-  const q = multipleChoice[index];
+  const q = session[index];
 
   const choose = (optionIndex: number) => {
     if (selected !== null || !q) return;
@@ -21,7 +28,7 @@ export function Quiz({ onComplete }: Props) {
     if (isCorrect) setCorrect(newCorrect);
 
     setTimeout(() => {
-      if (index + 1 >= multipleChoice.length) {
+      if (index + 1 >= session.length) {
         setFinished(true);
         onComplete(newCorrect);
       } else {
@@ -32,14 +39,17 @@ export function Quiz({ onComplete }: Props) {
   };
 
   if (finished) {
-    const pct = Math.round((correct / multipleChoice.length) * 100);
+    const pct = Math.round((correct / session.length) * 100);
     return (
       <div className="result-screen">
         <div className="result-icon">{pct >= 70 ? '🌟' : '📚'}</div>
         <h2>Quiz terminé</h2>
         <p>
-          {correct}/{multipleChoice.length} correct ({pct}%)
+          {correct}/{session.length} correct ({pct}%)
         </p>
+        {questions.length > session.length && (
+          <p className="hint">Banque : {questions.length} questions — un nouveau set à chaque session</p>
+        )}
       </div>
     );
   }
@@ -48,10 +58,19 @@ export function Quiz({ onComplete }: Props) {
 
   return (
     <div className="study-view">
+      <div className="session-meta">
+        <span className="counter">
+          {index + 1}/{session.length}
+        </span>
+        {questions.length > session.length && (
+          <span className="session-pool">banque de {questions.length}</span>
+        )}
+      </div>
+
       <div className="progress-dots">
-        {multipleChoice.map((_, i) => (
+        {session.map((item, i) => (
           <span
-            key={i}
+            key={item.id}
             className={`dot ${i < index ? 'dot--done' : ''} ${i === index ? 'dot--active' : ''}`}
           />
         ))}

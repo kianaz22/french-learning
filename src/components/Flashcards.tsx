@@ -1,11 +1,13 @@
 import { useMemo, useState } from 'react';
-import { flashcards, flashcardCategories } from '../data/unit1';
+import type { Flashcard } from '../data/types';
 
 type Props = {
+  flashcards: Flashcard[];
+  categories: string[];
   onComplete: (scores: Record<string, 'know' | 'learning'>) => void;
 };
 
-export function Flashcards({ onComplete }: Props) {
+export function Flashcards({ flashcards, categories, onComplete }: Props) {
   const [category, setCategory] = useState<string>('all');
   const [index, setIndex] = useState(0);
   const [flipped, setFlipped] = useState(false);
@@ -15,7 +17,7 @@ export function Flashcards({ onComplete }: Props) {
   const deck = useMemo(() => {
     if (category === 'all') return flashcards;
     return flashcards.filter((c) => c.category === category);
-  }, [category]);
+  }, [category, flashcards]);
 
   const card = deck[index];
   const reviewed = Object.keys(scores).filter((id) => deck.some((c) => c.id === id)).length;
@@ -61,7 +63,7 @@ export function Flashcards({ onComplete }: Props) {
           className="select"
         >
           <option value="all">Toutes les catégories</option>
-          {flashcardCategories.map((cat) => (
+          {categories.map((cat) => (
             <option key={cat} value={cat}>
               {cat}
             </option>
