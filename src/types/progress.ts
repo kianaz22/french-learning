@@ -1,5 +1,13 @@
 import type { SessionStepId } from '../data/types';
 
+export type ReviewKind = 'quiz' | 'fill' | 'flashcard' | 'conjugate';
+
+export type ReviewItem = {
+  kind: ReviewKind;
+  id: string;
+  pronoun?: string;
+};
+
 export type ProgressState = {
   completedSteps: SessionStepId[];
   lastSessionDate: string | null;
@@ -9,6 +17,8 @@ export type ProgressState = {
   fillScore: number | null;
   conjugationComplete: boolean;
   missionsCompleted: string[];
+  reviewItems: ReviewItem[];
+  reviewCleared: string[];
 };
 
 export const defaultProgress: ProgressState = {
@@ -20,6 +30,8 @@ export const defaultProgress: ProgressState = {
   fillScore: null,
   conjugationComplete: false,
   missionsCompleted: [],
+  reviewItems: [],
+  reviewCleared: [],
 };
 
 export type SyncStatus = 'idle' | 'syncing' | 'synced' | 'error' | 'offline';

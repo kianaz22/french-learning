@@ -1,6 +1,3 @@
-export const QUIZ_SESSION_SIZE = 12;
-export const FILL_SESSION_SIZE = 12;
-
 export function shuffle<T>(items: T[]): T[] {
   const copy = [...items];
   for (let i = copy.length - 1; i > 0; i--) {

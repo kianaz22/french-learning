@@ -1,42 +1,58 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import type { ConjugationExercise } from '../data/types';
+import { CONJ_SESSION_SIZE } from '../data/types';
+import { sampleSession } from '../lib/exerciseSession';
+import { normalizeAnswer } from '../lib/normalize';
+
+export type ConjugationRowResult = {
+  id: string;
+  pronoun: string;
+};
+
+export type ConjugationResult = {
+  missed: ConjugationRowResult[];
+  correct: ConjugationRowResult[];
+};
 
 type Props = {
   exercises: ConjugationExercise[];
-  onComplete: () => void;
+  onComplete: (result: ConjugationResult) => void;
 };
 
-function normalize(s: string) {
-  return s
-    .trim()
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '');
-}
-
 export function Conjugation({ exercises, onComplete }: Props) {
+  const session = useMemo(
+    () => sampleSession(exercises, CONJ_SESSION_SIZE),
+    [exercises],
+  );
   const [verbIndex, setVerbIndex] = useState(0);
   const [rowIndex, setRowIndex] = useState(0);
   const [input, setInput] = useState('');
   const [feedback, setFeedback] = useState<'correct' | 'wrong' | null>(null);
   const [finished, setFinished] = useState(false);
+  const [missed, setMissed] = useState<ConjugationRowResult[]>([]);
+  const [correctRows, setCorrectRows] = useState<ConjugationRowResult[]>([]);
 
-  const exercise = exercises[verbIndex];
+  const exercise = session[verbIndex];
   const row = exercise?.rows[rowIndex];
 
   const check = () => {
     if (!row || feedback) return;
-    const ok = normalize(input) === normalize(row.answer);
+    const ok = normalizeAnswer(input) === normalizeAnswer(row.answer);
     setFeedback(ok ? 'correct' : 'wrong');
+    const entry = { id: exercise.id, pronoun: row.pronoun };
+    const nextMissed = ok ? missed : [...missed, entry];
+    const nextCorrect = ok ? [...correctRows, entry] : correctRows;
+    setMissed(nextMissed);
+    setCorrectRows(nextCorrect);
 
     setTimeout(() => {
       setInput('');
       setFeedback(null);
 
       if (rowIndex + 1 >= exercise.rows.length) {
-        if (verbIndex + 1 >= exercises.length) {
+        if (verbIndex + 1 >= session.length) {
           setFinished(true);
-          onComplete();
+          onComplete({ missed: nextMissed, correct: nextCorrect });
         } else {
           setVerbIndex((v) => v + 1);
           setRowIndex(0);
@@ -52,16 +68,19 @@ export function Conjugation({ exercises, onComplete }: Props) {
       <div className="result-screen">
         <div className="result-icon">↻</div>
         <h2>Conjugaison terminée</h2>
-        <p>{exercises.map((e) => e.verb).join(', ')} — présent ✓</p>
+        <p>{session.map((e) => e.verb).join(', ')} — présent ✓</p>
+        {exercises.length > session.length && (
+          <p className="hint">Banque : {exercises.length} verbes — un nouveau set à chaque session</p>
+        )}
       </div>
     );
   }
 
   if (!exercise || !row) return null;
 
-  const totalRows = exercises.reduce((n, e) => n + e.rows.length, 0);
+  const totalRows = session.reduce((n, e) => n + e.rows.length, 0);
   const doneRows =
-    exercises.slice(0, verbIndex).reduce((n, e) => n + e.rows.length, 0) + rowIndex;
+    session.slice(0, verbIndex).reduce((n, e) => n + e.rows.length, 0) + rowIndex;
 
   return (
     <div className="study-view">

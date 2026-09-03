@@ -1,4 +1,5 @@
 import { dailySessionSteps, type UnitContent, type SessionStepId } from '../data/types';
+import { liveReviewItems } from '../lib/reviewList';
 import type { ProgressState } from '../types/progress';
 import { UnitPicker } from './UnitPicker';
 
@@ -9,6 +10,7 @@ type Props = {
   todayComplete: boolean;
   onSelectUnit: (unitNumber: number) => void;
   onOpenLesson: () => void;
+  onOpenReview: () => void;
   onSelectStep: (id: SessionStepId) => void;
   onReset: () => void;
 };
@@ -20,6 +22,7 @@ export function Home({
   todayComplete,
   onSelectUnit,
   onOpenLesson,
+  onOpenReview,
   onSelectStep,
   onReset,
 }: Props) {
@@ -27,6 +30,7 @@ export function Home({
   const completed = progress.completedSteps.length;
   const total = dailySessionSteps.length;
   const pct = Math.round((completed / total) * 100);
+  const reviewCount = liveReviewItems(unit, progress.reviewItems ?? []).length;
 
   return (
     <div className="home">
@@ -42,7 +46,7 @@ export function Home({
         <p className="eyebrow">L&apos;Atelier Companion</p>
         <h2 className="hero-title">Unité {meta.number} — {meta.title}</h2>
         <p className="hero-sub">
-          ~15 min de pratique pour consolider la leçon entre deux cours.
+          ~30 min de pratique — leçons détaillées et grandes banques d'exercices.
         </p>
         <div className="progress-bar-wrap">
           <div className="progress-bar" style={{ width: `${pct}%` }} />
@@ -63,16 +67,35 @@ export function Home({
 
       <section>
         <h3 className="section-title">Apprendre</h3>
+        <div className="learn-stack">
         <button type="button" className="learn-card card" onClick={onOpenLesson}>
           <span className="learn-icon">📖</span>
           <div className="learn-body">
             <span className="learn-name">Leçon — Unité {meta.number}</span>
             <span className="learn-desc">
-              Grammaire, vocabulaire, verbes et phrases clés
+              Grammaire détaillée, vocabulaire, verbes, phrases et dialogue
             </span>
           </div>
           <span className="learn-arrow">→</span>
         </button>
+        <button
+          type="button"
+          className={`learn-card card review-home-card ${reviewCount > 0 ? 'review-home-card--active' : ''}`}
+          onClick={onOpenReview}
+        >
+          <span className="learn-icon">🔁</span>
+          <div className="learn-body">
+            <span className="learn-name">À revoir</span>
+            <span className="learn-desc">
+              {reviewCount === 0
+                ? 'Les erreurs de pratique s’accumulent ici'
+                : `${reviewCount} élément${reviewCount > 1 ? 's' : ''} à retravailler`}
+            </span>
+          </div>
+          {reviewCount > 0 && <span className="review-badge">{reviewCount}</span>}
+          <span className="learn-arrow">→</span>
+        </button>
+        </div>
       </section>
 
       <section>

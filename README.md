@@ -1,6 +1,6 @@
 # L'Atelier Companion
 
-A mobile-first PWA to practice **L'Atelier A1 — Unités 1–3** on days between class.
+A mobile-first PWA to practice **L'Atelier A1 — Unités 1–3** on days between class. Each unit has a detailed lesson plus large practice banks so you can drill for weeks without repeating the same set.
 
 ## Units
 
@@ -9,6 +9,8 @@ A mobile-first PWA to practice **L'Atelier A1 — Unités 1–3** on days betwee
 | 1 | *C'est qui ?* | Greetings, introductions, être / avoir / s'appeler |
 | 2 | *On fait quoi ce week-end ?* | Objects, hobbies, sports, aimer / faire / aller |
 | 3 | *On va où cet été ?* | Weather, city, directions, futur proche, venir / prendre |
+
+Each unit now includes a full lesson (12 grammar points with explanations, examples, common mistakes, a model dialogue, and culture notes) plus large practice banks: ~120–140 flashcards, 240 quiz questions, 240 fill-in-the-blanks, 10 verbs, and 20 writing missions. Daily sessions sample a fresh set so you can practice for weeks without repeating the same items.
 
 Switch units from the home screen — progress is saved separately per unit.
 
@@ -60,7 +62,7 @@ On first sign-in, local progress is **merged** with any cloud data (best streak,
 3. On iOS Safari: Share → **Add to Home Screen**
 4. On Android Chrome: Menu → **Install app**
 
-## Daily session (~15 min)
+## Daily session (~30 min)
 
 Study the **Leçon** first, then complete the practice steps:
 

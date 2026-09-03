@@ -42,12 +42,26 @@ export type MissionPrompt = {
   checklist: string[];
 };
 
+export type GrammarExample = {
+  french: string;
+  english: string;
+  note?: string;
+};
+
+export type CommonMistake = {
+  wrong: string;
+  right: string;
+  why: string;
+};
+
 export type GrammarPoint = {
   id: string;
   title: string;
   summary: string;
+  explanation?: string;
   rules?: string[];
-  examples: { french: string; english: string }[];
+  examples: GrammarExample[];
+  commonMistakes?: CommonMistake[];
   tip?: string;
 };
 
@@ -57,11 +71,30 @@ export type KeyPhrase = {
   context?: string;
 };
 
+export type DialogueLine = {
+  speaker: string;
+  french: string;
+  english: string;
+};
+
+export type LessonDialogue = {
+  title: string;
+  setting?: string;
+  lines: DialogueLine[];
+};
+
+export type CultureNote = {
+  title: string;
+  text: string;
+};
+
 export type UnitLesson = {
   overview: string;
   grammar: GrammarPoint[];
   keyPhrases: KeyPhrase[];
   cultureNote?: string;
+  cultureNotes?: CultureNote[];
+  dialogue?: LessonDialogue;
 };
 
 export type UnitMeta = {
@@ -71,15 +104,17 @@ export type UnitMeta = {
 };
 
 export const dailySessionSteps = [
-  { id: 'flashcards', label: 'Cartes', duration: '5 min', description: 'Review vocabulary' },
-  { id: 'quiz', label: 'Quiz', duration: '8 min', description: '12 questions from a bank of 24' },
-  { id: 'fill', label: 'Phrases', duration: '8 min', description: '12 fill-in-the-blank drills' },
-  { id: 'conjugate', label: 'Verbes', duration: '5 min', description: 'Conjugation drill' },
-  { id: 'mission', label: 'Mission', duration: '5 min', description: 'Write & produce' },
+  { id: 'flashcards', label: 'Cartes', duration: '8 min', description: 'Review a fresh set of vocabulary' },
+  { id: 'quiz', label: 'Quiz', duration: '12 min', description: '20 questions from a large bank' },
+  { id: 'fill', label: 'Phrases', duration: '12 min', description: '20 fill-in-the-blank drills' },
+  { id: 'conjugate', label: 'Verbes', duration: '8 min', description: '5 verbs from the unit bank' },
+  { id: 'mission', label: 'Mission', duration: '8 min', description: 'Write & produce' },
 ] as const;
 
-export const QUIZ_SESSION_SIZE = 12;
-export const FILL_SESSION_SIZE = 12;
+export const QUIZ_SESSION_SIZE = 20;
+export const FILL_SESSION_SIZE = 20;
+export const FLASH_SESSION_SIZE = 36;
+export const CONJ_SESSION_SIZE = 5;
 
 export type SessionStepId = (typeof dailySessionSteps)[number]['id'];
 

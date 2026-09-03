@@ -1,5 +1,6 @@
 import type { SessionStepId } from '../data/types';
 import { getSupabase } from './supabase';
+import { mergeReviewLists } from './reviewList';
 import { defaultProgress, type ProgressState } from '../types/progress';
 
 export const GUEST_KEY = 'latelier-guest-mode';
@@ -24,7 +25,15 @@ export function loadLocalProgress(unitNumber: number): ProgressState {
   migrateLegacyUnit1();
   try {
     const raw = localStorage.getItem(storageKey(unitNumber));
-    if (raw) return { ...defaultProgress, ...JSON.parse(raw) };
+    if (raw) {
+      const parsed = JSON.parse(raw) as Partial<ProgressState>;
+      return {
+        ...defaultProgress,
+        ...parsed,
+        reviewItems: parsed.reviewItems ?? [],
+        reviewCleared: parsed.reviewCleared ?? [],
+      };
+    }
   } catch {
     /* ignore */
   }
@@ -83,6 +92,12 @@ export function mergeProgress(local: ProgressState, remote: ProgressState): Prog
     fillScore: maxScore(local.fillScore, remote.fillScore),
     conjugationComplete: local.conjugationComplete || remote.conjugationComplete,
     missionsCompleted: [...new Set([...local.missionsCompleted, ...remote.missionsCompleted])],
+    ...mergeReviewLists(
+      local.reviewItems ?? [],
+      local.reviewCleared ?? [],
+      remote.reviewItems ?? [],
+      remote.reviewCleared ?? [],
+    ),
   };
 }
 
@@ -101,7 +116,13 @@ export async function fetchRemoteProgress(
     .maybeSingle();
 
   if (error || !data?.progress) return null;
-  return { ...defaultProgress, ...(data.progress as Partial<ProgressState>) };
+  const parsed = data.progress as Partial<ProgressState>;
+  return {
+    ...defaultProgress,
+    ...parsed,
+    reviewItems: parsed.reviewItems ?? [],
+    reviewCleared: parsed.reviewCleared ?? [],
+  };
 }
 
 export async function saveRemoteProgress(

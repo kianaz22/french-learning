@@ -2,14 +2,15 @@ import { useState } from 'react';
 import type { UnitContent } from '../data/types';
 import { flashcardCategories } from '../data/types';
 
-type Tab = 'overview' | 'grammar' | 'vocab' | 'verbs' | 'phrases';
+type Tab = 'overview' | 'grammar' | 'vocab' | 'verbs' | 'phrases' | 'dialogue';
 
-const tabs: { id: Tab; label: string }[] = [
+const allTabs: { id: Tab; label: string }[] = [
   { id: 'overview', label: 'Vue d\'ensemble' },
   { id: 'grammar', label: 'Grammaire' },
   { id: 'vocab', label: 'Vocabulaire' },
   { id: 'verbs', label: 'Verbes' },
   { id: 'phrases', label: 'Phrases clés' },
+  { id: 'dialogue', label: 'Dialogue' },
 ];
 
 type Props = {
@@ -18,7 +19,7 @@ type Props = {
 };
 
 const exploreSections: { id: Tab; label: string; desc: string; icon: string; count: (u: UnitContent) => number }[] = [
-  { id: 'grammar', label: 'Grammaire', desc: 'Règles & exemples', icon: '✦', count: (u) => u.lesson.grammar.length },
+  { id: 'grammar', label: 'Grammaire', desc: 'Explications, règles & pièges', icon: '✦', count: (u) => u.lesson.grammar.length },
   { id: 'vocab', label: 'Vocabulaire', desc: 'Par thème', icon: '📚', count: (u) => u.flashcards.length },
   { id: 'verbs', label: 'Verbes', desc: 'Tableaux de conjugaison', icon: '↻', count: (u) => u.conjugationExercises.length },
   { id: 'phrases', label: 'Phrases clés', desc: 'Expressions utiles', icon: '💬', count: (u) => u.lesson.keyPhrases.length },
@@ -29,6 +30,12 @@ export function Lesson({ unit, onStartPractice }: Props) {
   const { meta, lesson, flashcards, conjugationExercises } = unit;
   const categories = flashcardCategories(unit);
   const featuredPhrase = lesson.keyPhrases[0];
+  const cultureNotes = lesson.cultureNotes?.length
+    ? lesson.cultureNotes
+    : lesson.cultureNote
+      ? [{ title: 'Culture', text: lesson.cultureNote }]
+      : [];
+  const tabs = lesson.dialogue ? allTabs : allTabs.filter((t) => t.id !== 'dialogue');
 
   const vocabByCategory = categories.map((cat) => ({
     category: cat,
@@ -97,6 +104,18 @@ export function Lesson({ unit, onStartPractice }: Props) {
                     <span className="lo-explore-count">{section.count(unit)}</span>
                   </button>
                 ))}
+                {lesson.dialogue && (
+                  <button
+                    type="button"
+                    className="lo-explore-card"
+                    onClick={() => setTab('dialogue')}
+                  >
+                    <span className="lo-explore-icon">🎭</span>
+                    <span className="lo-explore-name">Dialogue</span>
+                    <span className="lo-explore-desc">Conversation modèle</span>
+                    <span className="lo-explore-count">{lesson.dialogue.lines.length}</span>
+                  </button>
+                )}
               </div>
             </div>
 
@@ -147,15 +166,26 @@ export function Lesson({ unit, onStartPractice }: Props) {
               </blockquote>
             )}
 
-            {lesson.cultureNote && (
-              <aside className="lo-culture card">
+            {lesson.dialogue && (
+              <button type="button" className="lo-dialogue-preview card" onClick={() => setTab('dialogue')}>
+                <span className="lo-featured-label">Dialogue</span>
+                <p className="lo-featured-fr">{lesson.dialogue.title}</p>
+                {lesson.dialogue.setting && (
+                  <p className="lo-featured-en">{lesson.dialogue.setting}</p>
+                )}
+                <span className="lo-see-all">Lire le dialogue →</span>
+              </button>
+            )}
+
+            {cultureNotes.map((note) => (
+              <aside key={note.title} className="lo-culture card">
                 <div className="lo-culture-head">
                   <span className="lo-culture-icon">🇫🇷</span>
-                  <h3 className="lo-culture-title">Culture</h3>
+                  <h3 className="lo-culture-title">{note.title}</h3>
                 </div>
-                <p className="lo-culture-text">{lesson.cultureNote}</p>
+                <p className="lo-culture-text">{note.text}</p>
               </aside>
-            )}
+            ))}
 
             {onStartPractice && (
               <div className="lo-cta">
@@ -163,7 +193,7 @@ export function Lesson({ unit, onStartPractice }: Props) {
                   <span>Commencer les exercices</span>
                   <span className="lo-cta-arrow">→</span>
                 </button>
-                <p className="lo-cta-hint">~15 min · cartes, quiz, phrases, verbes & mission</p>
+                <p className="lo-cta-hint">~30 min · cartes, quiz, phrases, verbes & mission</p>
               </div>
             )}
           </section>
@@ -175,6 +205,13 @@ export function Lesson({ unit, onStartPractice }: Props) {
               <article key={point.id} className="grammar-card card">
                 <h3 className="grammar-title">{point.title}</h3>
                 <p className="grammar-summary">{point.summary}</p>
+                {point.explanation && (
+                  <div className="grammar-explanation">
+                    {point.explanation.split('\n\n').map((para) => (
+                      <p key={para.slice(0, 40)}>{para}</p>
+                    ))}
+                  </div>
+                )}
                 {point.rules && (
                   <ul className="grammar-rules">
                     {point.rules.map((rule) => (
@@ -187,9 +224,25 @@ export function Lesson({ unit, onStartPractice }: Props) {
                     <div key={ex.french} className="grammar-example">
                       <span className="grammar-fr">{ex.french}</span>
                       <span className="grammar-en">{ex.english}</span>
+                      {ex.note && <span className="grammar-note">{ex.note}</span>}
                     </div>
                   ))}
                 </div>
+                {point.commonMistakes && point.commonMistakes.length > 0 && (
+                  <div className="grammar-mistakes">
+                    <p className="grammar-mistakes-title">Pièges fréquents</p>
+                    {point.commonMistakes.map((m) => (
+                      <div key={m.wrong} className="grammar-mistake">
+                        <p className="grammar-mistake-pair">
+                          <span className="grammar-wrong">{m.wrong}</span>
+                          <span className="grammar-mistake-arrow" aria-hidden="true">→</span>
+                          <span className="grammar-right">{m.right}</span>
+                        </p>
+                        <p className="grammar-mistake-why">{m.why}</p>
+                      </div>
+                    ))}
+                  </div>
+                )}
                 {point.tip && <p className="grammar-tip">💡 {point.tip}</p>}
               </article>
             ))}
@@ -256,6 +309,26 @@ export function Lesson({ unit, onStartPractice }: Props) {
                 <p className="phrase-en">{phrase.english}</p>
               </div>
             ))}
+          </section>
+        )}
+
+        {tab === 'dialogue' && lesson.dialogue && (
+          <section className="lesson-section">
+            <div className="dialogue-card card">
+              <h3 className="dialogue-title">{lesson.dialogue.title}</h3>
+              {lesson.dialogue.setting && (
+                <p className="dialogue-setting">{lesson.dialogue.setting}</p>
+              )}
+              <ol className="dialogue-lines">
+                {lesson.dialogue.lines.map((line, i) => (
+                  <li key={`${line.speaker}-${i}`} className="dialogue-line">
+                    <span className="dialogue-speaker">{line.speaker}</span>
+                    <p className="dialogue-fr">{line.french}</p>
+                    <p className="dialogue-en">{line.english}</p>
+                  </li>
+                ))}
+              </ol>
+            </div>
           </section>
         )}
       </div>

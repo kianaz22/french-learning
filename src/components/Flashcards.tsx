@@ -1,13 +1,16 @@
 import { useMemo, useState } from 'react';
 import type { Flashcard } from '../data/types';
+import { FLASH_SESSION_SIZE } from '../data/types';
+import { shuffle } from '../lib/exerciseSession';
 
 type Props = {
   flashcards: Flashcard[];
   categories: string[];
+  priorityIds?: string[];
   onComplete: (scores: Record<string, 'know' | 'learning'>) => void;
 };
 
-export function Flashcards({ flashcards, categories, onComplete }: Props) {
+export function Flashcards({ flashcards, categories, priorityIds = [], onComplete }: Props) {
   const [category, setCategory] = useState<string>('all');
   const [index, setIndex] = useState(0);
   const [flipped, setFlipped] = useState(false);
@@ -15,9 +18,12 @@ export function Flashcards({ flashcards, categories, onComplete }: Props) {
   const [finished, setFinished] = useState(false);
 
   const deck = useMemo(() => {
-    if (category === 'all') return flashcards;
-    return flashcards.filter((c) => c.category === category);
-  }, [category, flashcards]);
+    if (category !== 'all') return flashcards.filter((c) => c.category === category);
+    const priority = new Set(priorityIds);
+    const first = shuffle(flashcards.filter((c) => priority.has(c.id)));
+    const rest = shuffle(flashcards.filter((c) => !priority.has(c.id)));
+    return [...first, ...rest].slice(0, FLASH_SESSION_SIZE);
+  }, [category, flashcards, priorityIds]);
 
   const card = deck[index];
   const reviewed = Object.keys(scores).filter((id) => deck.some((c) => c.id === id)).length;
@@ -45,6 +51,9 @@ export function Flashcards({ flashcards, categories, onComplete }: Props) {
         <p>
           {know}/{deck.length} que vous connaissez bien
         </p>
+        {flashcards.length > deck.length && (
+          <p className="hint">Banque : {flashcards.length} cartes — un nouveau set à chaque session</p>
+        )}
         <p className="hint">Les cartes « Encore » reviendront en priorité la prochaine fois.</p>
       </div>
     );

@@ -18,10 +18,12 @@ import { FillBlank } from './components/FillBlank';
 import { Conjugation } from './components/Conjugation';
 import { Mission } from './components/Mission';
 import { Lesson } from './components/Lesson';
+import { Review } from './components/Review';
 import { Sidebar, stepIcons } from './components/Sidebar';
 import { UserMenu } from './components/UserMenu';
+import { liveReviewItems } from './lib/reviewList';
 
-type View = 'home' | 'learn' | SessionStepId;
+type View = 'home' | 'learn' | 'review' | SessionStepId;
 
 export default function App() {
   const { loading, user, isGuest } = useAuth();
@@ -31,6 +33,7 @@ export default function App() {
     progress,
     syncStatus,
     updateProgress,
+    recordReview,
     markStepComplete,
     resetProgress,
     todayComplete,
@@ -67,6 +70,9 @@ export default function App() {
 
   const { meta, flashcards, multipleChoice, fillBlank, conjugationExercises, missionPrompts } = unit;
   const categories = flashcardCategories(unit);
+  const reviewItems = progress.reviewItems ?? [];
+  const reviewCount = liveReviewItems(unit, reviewItems).length;
+  const reviewCardIds = reviewItems.filter((item) => item.kind === 'flashcard').map((item) => item.id);
 
   return (
     <div className="app-shell">
@@ -74,6 +80,7 @@ export default function App() {
         unit={unit}
         view={view}
         progress={progress}
+        reviewCount={reviewCount}
         onNavigate={setView}
         syncStatus={syncStatus}
       />
@@ -93,7 +100,9 @@ export default function App() {
                 ? meta.title
                 : view === 'learn'
                   ? 'Leçon'
-                  : getStepLabel(view, dailySessionSteps)}
+                  : view === 'review'
+                    ? 'À revoir'
+                    : getStepLabel(view, dailySessionSteps)}
             </h1>
           </div>
           <div className="header-actions">
@@ -115,6 +124,7 @@ export default function App() {
               todayComplete={todayComplete}
               onSelectUnit={selectUnit}
               onOpenLesson={() => setView('learn')}
+              onOpenReview={() => setView('review')}
               onSelectStep={(id) => setView(id)}
               onReset={resetProgress}
             />
@@ -125,12 +135,30 @@ export default function App() {
               onStartPractice={() => setView('flashcards')}
             />
           )}
+          {view === 'review' && (
+            <Review
+              unit={unit}
+              items={reviewItems}
+              onRecord={recordReview}
+            />
+          )}
           {view === 'flashcards' && (
             <Flashcards
               flashcards={flashcards}
               categories={categories}
+              priorityIds={reviewCardIds}
               onComplete={(scores) => {
-                updateProgress({ flashcardScores: scores });
+                updateProgress({
+                  flashcardScores: { ...progress.flashcardScores, ...scores },
+                });
+                recordReview(
+                  Object.entries(scores)
+                    .filter(([, rating]) => rating === 'learning')
+                    .map(([id]) => ({ kind: 'flashcard' as const, id })),
+                  Object.entries(scores)
+                    .filter(([, rating]) => rating === 'know')
+                    .map(([id]) => ({ kind: 'flashcard' as const, id })),
+                );
                 handleStepComplete('flashcards');
               }}
             />
@@ -138,8 +166,12 @@ export default function App() {
           {view === 'quiz' && (
             <Quiz
               questions={multipleChoice}
-              onComplete={(score) => {
+              onComplete={({ score, missedIds, correctIds }) => {
                 updateProgress({ quizScore: score });
+                recordReview(
+                  missedIds.map((id) => ({ kind: 'quiz', id })),
+                  correctIds.map((id) => ({ kind: 'quiz', id })),
+                );
                 handleStepComplete('quiz');
               }}
             />
@@ -147,8 +179,12 @@ export default function App() {
           {view === 'fill' && (
             <FillBlank
               exercises={fillBlank}
-              onComplete={(score) => {
+              onComplete={({ score, missedIds, correctIds }) => {
                 updateProgress({ fillScore: score });
+                recordReview(
+                  missedIds.map((id) => ({ kind: 'fill', id })),
+                  correctIds.map((id) => ({ kind: 'fill', id })),
+                );
                 handleStepComplete('fill');
               }}
             />
@@ -156,8 +192,12 @@ export default function App() {
           {view === 'conjugate' && (
             <Conjugation
               exercises={conjugationExercises}
-              onComplete={() => {
+              onComplete={({ missed, correct }) => {
                 updateProgress({ conjugationComplete: true });
+                recordReview(
+                  missed.map((row) => ({ kind: 'conjugate', id: row.id, pronoun: row.pronoun })),
+                  correct.map((row) => ({ kind: 'conjugate', id: row.id, pronoun: row.pronoun })),
+                );
                 handleStepComplete('conjugate');
               }}
             />

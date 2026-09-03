@@ -3,9 +3,15 @@ import type { MultipleChoiceExercise } from '../data/types';
 import { QUIZ_SESSION_SIZE } from '../data/types';
 import { sampleSession } from '../lib/exerciseSession';
 
+export type QuizResult = {
+  score: number;
+  missedIds: string[];
+  correctIds: string[];
+};
+
 type Props = {
   questions: MultipleChoiceExercise[];
-  onComplete: (score: number) => void;
+  onComplete: (result: QuizResult) => void;
 };
 
 export function Quiz({ questions, onComplete }: Props) {
@@ -16,6 +22,8 @@ export function Quiz({ questions, onComplete }: Props) {
   const [index, setIndex] = useState(0);
   const [selected, setSelected] = useState<number | null>(null);
   const [correct, setCorrect] = useState(0);
+  const [missedIds, setMissedIds] = useState<string[]>([]);
+  const [correctIds, setCorrectIds] = useState<string[]>([]);
   const [finished, setFinished] = useState(false);
 
   const q = session[index];
@@ -25,12 +33,16 @@ export function Quiz({ questions, onComplete }: Props) {
     setSelected(optionIndex);
     const isCorrect = optionIndex === q.correctIndex;
     const newCorrect = isCorrect ? correct + 1 : correct;
+    const nextMissed = isCorrect ? missedIds : [...missedIds, q.id];
+    const nextCorrectIds = isCorrect ? [...correctIds, q.id] : correctIds;
     if (isCorrect) setCorrect(newCorrect);
+    setMissedIds(nextMissed);
+    setCorrectIds(nextCorrectIds);
 
     setTimeout(() => {
       if (index + 1 >= session.length) {
         setFinished(true);
-        onComplete(newCorrect);
+        onComplete({ score: newCorrect, missedIds: nextMissed, correctIds: nextCorrectIds });
       } else {
         setIndex((i) => i + 1);
         setSelected(null);

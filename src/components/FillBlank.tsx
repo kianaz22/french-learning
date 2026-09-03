@@ -2,19 +2,18 @@ import { useMemo, useState } from 'react';
 import type { FillBlankExercise } from '../data/types';
 import { FILL_SESSION_SIZE } from '../data/types';
 import { sampleSession } from '../lib/exerciseSession';
+import { normalizeAnswer } from '../lib/normalize';
+
+export type FillResult = {
+  score: number;
+  missedIds: string[];
+  correctIds: string[];
+};
 
 type Props = {
   exercises: FillBlankExercise[];
-  onComplete: (score: number) => void;
+  onComplete: (result: FillResult) => void;
 };
-
-function normalize(s: string) {
-  return s
-    .trim()
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '');
-}
 
 export function FillBlank({ exercises, onComplete }: Props) {
   const session = useMemo(
@@ -25,21 +24,27 @@ export function FillBlank({ exercises, onComplete }: Props) {
   const [input, setInput] = useState('');
   const [feedback, setFeedback] = useState<'correct' | 'wrong' | null>(null);
   const [correct, setCorrect] = useState(0);
+  const [missedIds, setMissedIds] = useState<string[]>([]);
+  const [correctIds, setCorrectIds] = useState<string[]>([]);
   const [finished, setFinished] = useState(false);
 
   const ex = session[index];
 
   const check = () => {
     if (!ex || feedback) return;
-    const ok = normalize(input) === normalize(ex.answer);
+    const ok = normalizeAnswer(input) === normalizeAnswer(ex.answer);
     setFeedback(ok ? 'correct' : 'wrong');
     const newCorrect = ok ? correct + 1 : correct;
+    const nextMissed = ok ? missedIds : [...missedIds, ex.id];
+    const nextCorrectIds = ok ? [...correctIds, ex.id] : correctIds;
     if (ok) setCorrect(newCorrect);
+    setMissedIds(nextMissed);
+    setCorrectIds(nextCorrectIds);
 
     setTimeout(() => {
       if (index + 1 >= session.length) {
         setFinished(true);
-        onComplete(newCorrect);
+        onComplete({ score: newCorrect, missedIds: nextMissed, correctIds: nextCorrectIds });
       } else {
         setIndex((i) => i + 1);
         setInput('');

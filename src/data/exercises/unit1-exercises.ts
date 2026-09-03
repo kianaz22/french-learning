@@ -1,216 +1,115 @@
-import type { FillBlankExercise, MissionPrompt, MultipleChoiceExercise } from '../types';
+import type { MissionPrompt } from '../types';
 
-export const unit1Quiz: MultipleChoiceExercise[] = [
-  {
-    id: 'mc1',
-    question: 'Complete: « Moi, je ___ Paul. »',
-    options: ["m'appelle", 'appelle', "s'appelle", 'appelles'],
-    correctIndex: 0,
-    explanation: "With je, use je m'appelle (reflexive verb s'appeler).",
-  },
-  {
-    id: 'mc2',
-    question: 'Which article goes with « ___ France »?',
-    options: ['le', 'la', 'les', "l'"],
-    correctIndex: 1,
-    explanation: 'France is feminine → la France.',
-  },
-  {
-    id: 'mc3',
-    question: 'Emma is Canadian (feminine). She is…',
-    options: ['canadien', 'canadienne', 'canadiens', 'canadiennes'],
-    correctIndex: 1,
-    explanation: 'Feminine nationality adjectives add -e.',
-  },
-  {
-    id: 'mc4',
-    question: 'Negation: « Je ___ suis ___ français. »',
-    options: ['ne … pas', 'pas … ne', 'non … pas', 'ne … no'],
-    correctIndex: 0,
-    explanation: 'Standard negation: ne + verb + pas.',
-  },
-  {
-    id: 'mc5',
-    question: "How do you ask someone's age informally?",
-    options: ['Tu as quel âge ?', 'Tu es quel âge ?', 'Tu as quelle année ?', 'Tu es combien ?'],
-    correctIndex: 0,
-    explanation: 'Age uses avoir: Tu as quel âge ?',
-  },
-  {
-    id: 'mc6',
-    question: '« Lui, ___ Omar Sy. »',
-    options: ["c'est", 'il est', 'elle est', 'ce sont'],
-    correctIndex: 0,
-    explanation: "Use c'est to identify someone.",
-  },
-  {
-    id: 'mc7',
-    question: '23 in French is…',
-    options: ['vingt-trois', 'trente-trois', 'deux-trois', 'vingt trois'],
-    correctIndex: 0,
-    explanation: '21–69: vingt/trente + hyphen + units.',
-  },
-  {
-    id: 'mc8',
-    question: '« Quelle est ___ nationalité ? »',
-    options: ['ton', 'ta', 'tes', 'le'],
-    correctIndex: 1,
-    explanation: 'Quelle + feminine noun → ta.',
-  },
-  {
-    id: 'mc9',
-    question: '« Comment ___ vous appelez ? » (formal)',
-    options: ['tu', 'vous', 'il', 'je'],
-    correctIndex: 1,
-    explanation: 'Vouvoiement → vous appelez.',
-  },
-  {
-    id: 'mc10',
-    question: '« Elle ___ Marie. » (s\'appeler, elle)',
-    options: ["s'appelle", "m'appelle", 'appelle', "t'appelle"],
-    correctIndex: 0,
-    explanation: "Elle s'appelle — 3rd person reflexive.",
-  },
-  {
-    id: 'mc11',
-    question: 'Which country uses « le »?',
-    options: ['la France', 'le Canada', 'la Belgique', 'la Suisse'],
-    correctIndex: 1,
-    explanation: 'Canada is masculine → le Canada.',
-  },
-  {
-    id: 'mc12',
-    question: '« Je viens ___ Canada. »',
-    options: ['de', 'du', 'de la', 'des'],
-    correctIndex: 1,
-    explanation: 'de + le → du.',
-  },
-  {
-    id: 'mc13',
-    question: '« Elle vient ___ France. »',
-    options: ['de', 'du', 'de la', 'des'],
-    correctIndex: 0,
-    explanation: 'Feminine countries: de + name (no article).',
-  },
-  {
-    id: 'mc14',
-    question: '« Il ___ acteur. » (profession)',
-    options: ['est', 'a', 'es', 'ai'],
-    correctIndex: 0,
-    explanation: 'Professions use être: il est acteur.',
-  },
-  {
-    id: 'mc15',
-    question: '« Nous ___ fatigués. »',
-    options: ['sommes', 'avons', 'êtes', 'sont'],
-    correctIndex: 0,
-    explanation: 'State/feeling with être: nous sommes.',
-  },
-  {
-    id: 'mc16',
-    question: '« J\'___ faim. »',
-    options: ['ai', 'suis', 'as', 'est'],
-    correctIndex: 0,
-    explanation: "Sensations use avoir: j'ai faim.",
-  },
-  {
-    id: 'mc17',
-    question: 'Formal greeting in the evening:',
-    options: ['Bonsoir', 'Bonjour', 'Salut', 'Coucou'],
-    correctIndex: 0,
-    explanation: 'Bonsoir = good evening.',
-  },
-  {
-    id: 'mc18',
-    question: '« Quel est ___ nom ? » (masculine noun)',
-    options: ['ton', 'ta', 'tes', 'le'],
-    correctIndex: 0,
-    explanation: 'Quel + masculine noun → ton.',
-  },
-  {
-    id: 'mc19',
-    question: '« Ils ___ vingt ans. »',
-    options: ['ont', 'sont', 'avez', 'sommes'],
-    correctIndex: 0,
-    explanation: 'Age always uses avoir.',
-  },
-  {
-    id: 'mc20',
-    question: '« Ce ___ mes amis. » (plural)',
-    options: ['sont', 'est', 'es', 'sommes'],
-    correctIndex: 0,
-    explanation: 'Plural identification → ce sont.',
-  },
-  {
-    id: 'mc21',
-    question: '« Tu ___ étudiant ? »',
-    options: ['es', 'as', 'est', 'ai'],
-    correctIndex: 0,
-    explanation: 'être with tu → es.',
-  },
-  {
-    id: 'mc22',
-    question: 'Polite word when asking for something:',
-    options: ["S'il vous plaît", 'Salut', 'Merci', 'Au revoir'],
-    correctIndex: 0,
-    explanation: "S'il vous plaît = please (formal).",
-  },
-  {
-    id: 'mc23',
-    question: '« Vous ___ professeur ? »',
-    options: ['êtes', 'avez', 'es', 'sommes'],
-    correctIndex: 0,
-    explanation: 'Profession with vous → êtes.',
-  },
-  {
-    id: 'mc24',
-    question: 'After meeting someone new, you say…',
-    options: ['Enchanté(e)', 'Au revoir', 'Merci', "S'il vous plaît"],
-    correctIndex: 0,
-    explanation: 'Enchanté(e) = nice to meet you.',
-  },
-];
-
-export const unit1Fill: FillBlankExercise[] = [
-  { id: 'fb1', prompt: "Tu t'___ comment ?", answer: 'appelles', hint: "s'appeler, tu" },
-  { id: 'fb2', prompt: "Elle s'___ Marie.", answer: 'appelle', hint: '3rd person singular' },
-  { id: 'fb3', prompt: 'Je ___ français.', answer: 'suis', hint: 'être, je' },
-  { id: 'fb4', prompt: "J'___ 25 ans.", answer: 'ai', hint: 'avoir for age' },
-  { id: 'fb5', prompt: 'Je ne ___ pas anglais.', answer: 'suis', hint: 'negation with être' },
-  { id: 'fb6', prompt: '___ est sa nationalité ?', answer: 'Quelle', hint: 'quelle + feminine noun' },
-  { id: 'fb7', prompt: 'Lui, ___ Omar Sy.', answer: "c'est", hint: 'identify someone' },
-  { id: 'fb8', prompt: 'Ils ___ canadiens.', answer: 'sont', hint: 'être, ils' },
-  { id: 'fb9', prompt: 'Tu ___ quel âge ?', answer: 'as', hint: 'avoir, tu' },
-  { id: 'fb10', prompt: 'Nous ___ étudiants.', answer: 'sommes', hint: 'être, nous' },
-  { id: 'fb11', prompt: "Je m'___ Sophie.", answer: 'appelle', hint: "je m'appelle" },
-  { id: 'fb12', prompt: 'Vous ___ professeur ?', answer: 'êtes', hint: 'être, vous' },
-  { id: 'fb13', prompt: "J'___ soif.", answer: 'ai', hint: 'avoir for sensations' },
-  { id: 'fb14', prompt: 'Elle ___ fatiguée.', answer: 'est', hint: 'être, elle' },
-  { id: 'fb15', prompt: 'Ils ___ trente ans.', answer: 'ont', hint: 'avoir, ils' },
-  { id: 'fb16', prompt: '___ est ton nom ?', answer: 'Quel', hint: 'quel + masculine noun' },
-  { id: 'fb17', prompt: 'Je viens ___ Canada.', answer: 'du', hint: 'de + le = du' },
-  { id: 'fb18', prompt: 'Elle vient ___ Belgique.', answer: 'de', hint: 'feminine country' },
-  { id: 'fb19', prompt: 'Il ___ journaliste.', answer: 'est', hint: 'profession + être' },
-  { id: 'fb20', prompt: "Nous ne ___ pas fatigués.", answer: 'sommes', hint: 'ne … pas' },
-  { id: 'fb21', prompt: "Comment ___ t'appelles ?", answer: 'tu', hint: 'informal question' },
-  { id: 'fb22', prompt: 'Ce ___ mes amis.', answer: 'sont', hint: 'plural → ce sont' },
-  { id: 'fb23', prompt: 'Tu ___ sénégalais ?', answer: 'es', hint: 'nationality + être' },
-  { id: 'fb24', prompt: "Elle ___ actrice.", answer: 'est', hint: 'profession, feminine' },
-];
+export { unit1Quiz } from './unit1-quiz';
+export { unit1Fill } from './unit1-fill';
 
 export const unit1MissionsExtra: MissionPrompt[] = [
   {
-    id: 'm4',
-    title: 'Écrivez un dialogue',
-    instruction: 'Write a 6-line dialogue between two people meeting for the first time. Include greetings, names, and nationalities.',
-    example: "— Bonjour ! Comment tu t'appelles ? — Je m'appelle Léa. Et toi ? — Moi, je m'appelle Tom. Je suis américain. — Enchantée !",
-    checklist: ['Bonjour / Salut', "Comment tu t'appelles", 'Je suis + nationality', 'Enchanté(e)'],
+    id: 'm9',
+    title: 'Tutoiement ou vouvoiement',
+    instruction:
+      'Rewrite the same first meeting twice: once with tu (classmate) and once with vous (a teacher). Keep names, nationality, and age.',
+    example:
+      "Salut ! Comment tu t'appelles ? — Je m'appelle Nora. J'ai vingt ans. Je suis belge. / Bonjour madame. Comment vous appelez-vous ? — Je m'appelle Nora. J'ai vingt ans. Je suis belge.",
+    checklist: ['One tu version', 'One vous version', "s'appeler", 'Age or nationality'],
   },
   {
-    id: 'm5',
-    title: 'Décrivez votre famille',
-    instruction: 'Write 4 sentences about 2 family members: name, age, nationality or profession.',
-    example: "Ma mère s'appelle Claire. Elle a 45 ans. Elle est française. Mon frère s'appelle Lucas. Il est étudiant.",
-    checklist: ["s'appelle", 'avoir + âge', 'être + profession/nationalité', 'At least 2 people'],
+    id: 'm10',
+    title: 'Accordez les nationalités',
+    instruction:
+      'Write 5 sentences about a mixed group (at least one man, one woman, one plural). Use four different nationality adjectives with correct agreement.',
+    example:
+      'Paul est français. Léa est canadienne. Ils sont italiens. Elles sont espagnoles. Notre professeur est belge.',
+    checklist: ['Masculine form', 'Feminine form', 'Plural form', 'No capital on the adjective'],
+  },
+  {
+    id: 'm11',
+    title: 'Mes langues',
+    instruction:
+      'Write 4 sentences about languages you and two other people speak. Include quelles langues and at least one negation.',
+    example:
+      "Je parle français et anglais. Mon ami parle espagnol. Il ne parle pas allemand. Quelles langues tu parles, toi ?",
+    checklist: ['parler + language', 'quelles langues', 'ne … pas', 'Three people total'],
+  },
+  {
+    id: 'm12',
+    title: 'Portraits de métiers',
+    instruction:
+      "Present three people with c'est + name, then il/elle est + profession (no article) and one extra detail.",
+    example:
+      "Elle, c'est Inès. Elle est architecte. Elle habite à Lyon. Lui, c'est Karim. Il est journaliste. Il a trente ans.",
+    checklist: ["c'est + name", 'être + profession, no article', 'One extra detail each', 'Three people'],
+  },
+  {
+    id: 'm13',
+    title: 'L’âge en lettres',
+    instruction:
+      'Write 5 sentences giving ages. Write every number in letters (not digits). Include one 21/31/41/51/61 form and one hyphenated number.',
+    example:
+      "J'ai vingt et un ans. Mon frère a vingt-deux ans. Ma sœur a seize ans. Nos parents ont quarante-cinq ans. Mon oncle a soixante et un ans.",
+    checklist: ['All numbers in letters', 'vingt et un (or 31/41/51/61)', 'One hyphenated number', 'avoir + ans'],
+  },
+  {
+    id: 'm14',
+    title: 'Salutations du jour',
+    instruction:
+      'Write four mini-exchanges: morning class, evening with friends, meeting a stranger, and leaving. Match the register.',
+    example:
+      "— Bonjour ! Ça va ? — Oui, ça va bien, merci. / — Bonsoir ! Salut ! — À plus ! / — Bonjour monsieur. Comment allez-vous ? — Très bien, merci. — Au revoir, bonne soirée.",
+    checklist: ['Bonjour and bonsoir', 'Salut or À plus', 'Formal Comment allez-vous / Au revoir', 'Enchanté(e) or merci'],
+  },
+  {
+    id: 'm15',
+    title: 'Passez à la négation',
+    instruction:
+      'Write 3 affirmative sentences about yourself, then rewrite each with ne … pas (être, avoir, and s’appeler or habiter).',
+    example:
+      "Je suis anglais. → Je ne suis pas anglais. J'ai faim. → Je n'ai pas faim. Je m'appelle Tom. → Je ne m'appelle pas Tom.",
+    checklist: ['ne … pas with être', "n' with avoir or habiter", "ne m'appelle pas or similar", 'Affirmative + negative pairs'],
+  },
+  {
+    id: 'm16',
+    title: "C'est ou il/elle est ?",
+    instruction:
+      "Write 6 sentences: three identifications (c'est / ce sont) and three descriptions (il/elle est + nationality, job, or state).",
+    example:
+      "C'est Marie. C'est une journaliste. Ce sont mes amis. Elle est française. Il est chef. Ils sont fatigués.",
+    checklist: ["c'est + name or article", 'ce sont + plural', 'il/elle est + adjective or job', 'Six sentences'],
+  },
+  {
+    id: 'm17',
+    title: 'Trois façons de demander',
+    instruction:
+      'Ask the same three facts (name, age, origin) using intonation, est-ce que, and inversion — nine questions total, or three triples.',
+    example:
+      "Tu t'appelles Léa ? / Est-ce que tu t'appelles Léa ? / Comment t'appelles-tu ? Tu as vingt ans ? / Est-ce que tu as vingt ans ? / Quel âge as-tu ?",
+    checklist: ['Intonation question', 'est-ce que', 'Inversion with hyphen', 'Name, age, origin'],
+  },
+  {
+    id: 'm18',
+    title: 'Pronoms en scène',
+    instruction:
+      'Write a 6-line scene that uses je, tu, il/elle, on, nous, and a tonic pronoun (moi, toi, lui, eux…).',
+    example:
+      "Moi, je m'appelle Sam. Toi, tu viens d'où ? Elle s'appelle Inès. On est étudiants. Nous avons vingt ans. Lui, c'est Karim.",
+    checklist: ['je and tu', 'il or elle', 'on', 'Tonic pronoun (moi/toi/lui/eux)'],
+  },
+  {
+    id: 'm19',
+    title: 'Questionnaire quel / quelle',
+    instruction:
+      'Write 6 questions with quel, quelle, quels, or quelles. Agree with the noun (âge, nationalité, nom, langues, profession…).',
+    example:
+      "Quel âge as-tu ? Quelle est ta nationalité ? Quel est ton nom ? Quelles langues tu parles ? Quelle est votre profession ? Quels sont tes collègues ?",
+    checklist: ['quel + masculine', 'quelle + feminine', 'quelles or quels plural', 'At least one Quelle est / Quel est'],
+  },
+  {
+    id: 'm20',
+    title: 'Premier jour de cours',
+    instruction:
+      'Write a short paragraph (7–8 sentences) as if it is your first day: greeting, name, origin with du/de/des, nationality, age, profession or studies, languages, and how you feel.',
+    example:
+      "Bonjour ! Je m'appelle Inès. Je viens du Canada. Je suis canadienne. J'ai vingt-trois ans. Je suis étudiante. Je parle français et anglais. Aujourd'hui j'ai un peu peur, mais je suis contente.",
+    checklist: ["s'appeler", 'venir de (du/de/des)', 'Nationality agreement', 'avoir + âge and être or avoir sensation'],
   },
 ];

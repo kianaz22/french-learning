@@ -9,15 +9,18 @@ const stepIcons: Record<SessionStepId, string> = {
   mission: '🎯',
 };
 
+type AppView = 'home' | 'learn' | 'review' | SessionStepId;
+
 type Props = {
   unit: UnitContent;
-  view: 'home' | 'learn' | SessionStepId;
+  view: AppView;
   progress: ProgressState;
+  reviewCount?: number;
   syncStatus?: SyncStatus;
-  onNavigate: (view: 'home' | 'learn' | SessionStepId) => void;
+  onNavigate: (view: AppView) => void;
 };
 
-export function Sidebar({ unit, view, progress, syncStatus, onNavigate }: Props) {
+export function Sidebar({ unit, view, progress, reviewCount = 0, syncStatus, onNavigate }: Props) {
   const { meta } = unit;
   const completed = progress.completedSteps.length;
   const total = dailySessionSteps.length;
@@ -67,6 +70,21 @@ export function Sidebar({ unit, view, progress, syncStatus, onNavigate }: Props)
             <span className="sidebar-link-name">Leçon</span>
             <span className="sidebar-link-desc">Grammaire & vocabulaire</span>
           </span>
+        </button>
+
+        <button
+          type="button"
+          className={`sidebar-link ${view === 'review' ? 'sidebar-link--active' : ''}`}
+          onClick={() => onNavigate('review')}
+        >
+          <span className="sidebar-link-icon">🔁</span>
+          <span className="sidebar-link-text">
+            <span className="sidebar-link-name">À revoir</span>
+            <span className="sidebar-link-desc">
+              {reviewCount === 0 ? 'Aucune erreur en attente' : `${reviewCount} à retravailler`}
+            </span>
+          </span>
+          {reviewCount > 0 && <span className="review-badge review-badge--sidebar">{reviewCount}</span>}
         </button>
 
         <p className="sidebar-nav-label">Session du jour</p>

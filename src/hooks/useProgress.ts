@@ -8,7 +8,8 @@ import {
   saveRemoteProgress,
   syncProgressForUser,
 } from '../lib/progressSync';
-import { defaultProgress, type ProgressState, type SyncStatus } from '../types/progress';
+import { applyReviewDelta } from '../lib/reviewList';
+import { defaultProgress, type ProgressState, type ReviewItem, type SyncStatus } from '../types/progress';
 
 export type { ProgressState } from '../types/progress';
 
@@ -162,6 +163,13 @@ export function useProgress(unitNumber: number) {
     });
   }, []);
 
+  const recordReview = useCallback((missed: ReviewItem[], correct: ReviewItem[]) => {
+    setProgress((prev) => ({
+      ...prev,
+      ...applyReviewDelta(prev.reviewItems ?? [], prev.reviewCleared ?? [], missed, correct),
+    }));
+  }, []);
+
   const resetProgress = useCallback(async () => {
     setProgress({ ...defaultProgress });
     if (user && !isGuest) {
@@ -183,6 +191,7 @@ export function useProgress(unitNumber: number) {
     syncStatus,
     progressReady: cloudReady,
     updateProgress,
+    recordReview,
     markStepComplete,
     resetProgress,
     sessionComplete,
