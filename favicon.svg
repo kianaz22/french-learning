@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="108" fill="#F5F6FA"/>
+  <rect x="32" y="32" width="448" height="448" rx="88" fill="#3D4F7C"/>
+  <text x="256" y="210" text-anchor="middle" fill="#F5F7FB" font-family="Georgia, serif" font-size="108" font-weight="bold">A1</text>
+  <text x="256" y="340" text-anchor="middle" fill="#C76B7A" font-family="Georgia, serif" font-size="44" font-style="italic">Unité 1</text>
+</svg>
