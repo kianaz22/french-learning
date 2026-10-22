@@ -1,8 +1,7 @@
-import { useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   units,
   getUnit,
-  loadCurrentUnitNumber,
   saveCurrentUnitNumber,
   dailySessionSteps,
   flashcardCategories,
@@ -19,16 +18,30 @@ import { Conjugation } from './components/Conjugation';
 import { Mission } from './components/Mission';
 import { Lesson } from './components/Lesson';
 import { Review } from './components/Review';
-import { Sidebar, stepIcons } from './components/Sidebar';
+import { Sidebar } from './components/Sidebar';
 import { UserMenu } from './components/UserMenu';
 import { liveReviewItems } from './lib/reviewList';
+import {
+  lastFinishedUnit,
+  loadCourse,
+  saveCourse,
+  type CourseStatus,
+} from './lib/course';
+import { hashEquals, parseHash, toHash, type AppView } from './lib/hashRoute';
+import { isSessionStep, nextSessionStep, stepLabel } from './lib/session';
 
-type View = 'home' | 'learn' | 'review' | SessionStepId;
+type View = AppView;
 
 export default function App() {
   const { loading, user, isGuest } = useAuth();
-  const [unitNumber, setUnitNumber] = useState(loadCurrentUnitNumber);
+  const [course, setCourse] = useState(loadCourse);
+  const practiceUnit = lastFinishedUnit(course);
+  const [unitNumber, setUnitNumber] = useState(practiceUnit);
+  const initialRoute = parseHash(window.location.hash);
+  const [readingUnit, setReadingUnit] = useState<number | null>(initialRoute.readingUnit);
+  const [situationId, setSituationId] = useState<string | undefined>(initialRoute.situationId);
   const unit = getUnit(unitNumber);
+  const lessonUnit = getUnit(readingUnit ?? unitNumber);
   const {
     progress,
     syncStatus,
@@ -38,19 +51,98 @@ export default function App() {
     resetProgress,
     todayComplete,
   } = useProgress(unitNumber);
-  const [view, setView] = useState<View>('home');
+  const [view, setView] = useState<View>(initialRoute.view);
+  const skipHashWrite = useRef(true);
 
-  const goHome = () => setView('home');
+  useEffect(() => {
+    setUnitNumber(practiceUnit);
+    saveCurrentUnitNumber(practiceUnit);
+  }, [practiceUnit]);
 
-  const selectUnit = (n: number) => {
-    saveCurrentUnitNumber(n);
-    setUnitNumber(n);
+  const applyRoute = useCallback((route: ReturnType<typeof parseHash>) => {
+    skipHashWrite.current = true;
+    setView(route.view);
+    setReadingUnit(route.readingUnit);
+    setSituationId(route.situationId);
+  }, []);
+
+  useEffect(() => {
+    const onPop = () => applyRoute(parseHash(window.location.hash));
+    window.addEventListener('popstate', onPop);
+    window.addEventListener('hashchange', onPop);
+    return () => {
+      window.removeEventListener('popstate', onPop);
+      window.removeEventListener('hashchange', onPop);
+    };
+  }, [applyRoute]);
+
+  useEffect(() => {
+    const next = toHash({ view, readingUnit, situationId });
+    const current = window.location.hash || '#/';
+    if (hashEquals(current, next)) {
+      skipHashWrite.current = false;
+      return;
+    }
+    if (skipHashWrite.current) {
+      skipHashWrite.current = false;
+      history.replaceState(null, '', next);
+      return;
+    }
+    history.pushState(null, '', next);
+  }, [view, readingUnit, situationId]);
+
+  const goHome = () => {
+    setReadingUnit(null);
+    setSituationId(undefined);
     setView('home');
   };
 
-  const handleStepComplete = (stepId: SessionStepId) => {
+  const openLesson = (n: number, sit?: string) => {
+    setReadingUnit(n);
+    setSituationId(sit);
+    setView('learn');
+  };
+
+  const openPractice = (id: SessionStepId) => {
+    setReadingUnit(null);
+    setSituationId(undefined);
+    setView(id);
+  };
+
+  const setStatus = (n: number, status: CourseStatus) => {
+    const next = {
+      ...course,
+      statuses: { ...course.statuses, [n]: status },
+    };
+    const nextPractice = lastFinishedUnit(next);
+    if (nextPractice !== practiceUnit) {
+      const title = getUnit(nextPractice).meta.title;
+      if (
+        !window.confirm(
+          `Pratiquer l’unité ${nextPractice} — ${title} ? La session suivra cette unité.`,
+        )
+      ) {
+        return;
+      }
+    }
+    saveCourse(next);
+    setCourse(next);
+  };
+
+  const adoptAndPractice = (n: number) => {
+    const next = {
+      ...course,
+      statuses: { ...course.statuses, [n]: 'done' as const },
+    };
+    saveCourse(next);
+    setCourse(next);
+    setReadingUnit(null);
+    setSituationId(undefined);
+    setView('flashcards');
+  };
+
+  const recordStep = (stepId: SessionStepId) => {
     markStepComplete(stepId);
-    setView('home');
   };
 
   if (loading) {
@@ -73,6 +165,8 @@ export default function App() {
   const reviewItems = progress.reviewItems ?? [];
   const reviewCount = liveReviewItems(unit, reviewItems).length;
   const reviewCardIds = reviewItems.filter((item) => item.kind === 'flashcard').map((item) => item.id);
+  const nextAfter = (from: SessionStepId) => nextSessionStep(progress.completedSteps, from);
+  const continueStep = nextSessionStep(progress.completedSteps) ?? 'flashcards';
 
   return (
     <div className="app-shell">
@@ -81,7 +175,12 @@ export default function App() {
         view={view}
         progress={progress}
         reviewCount={reviewCount}
-        onNavigate={setView}
+        onNavigate={(next) => {
+          if (next === 'home') goHome();
+          else if (next === 'learn') openLesson(unitNumber);
+          else if (next === 'review') setView('review');
+          else openPractice(next);
+        }}
         syncStatus={syncStatus}
       />
 
@@ -89,25 +188,27 @@ export default function App() {
         <header className="header">
           {syncStatus === 'syncing' && <div className="sync-bar" aria-hidden="true" />}
           {view !== 'home' && (
-            <button type="button" className="back-btn" onClick={goHome} aria-label="Back">
+            <button type="button" className="back-btn" onClick={goHome} aria-label="Retour à l’accueil">
               ←
             </button>
           )}
           <div className="header-text">
-            <span className="header-level">A1 · Unité {meta.number}</span>
+            <span className="header-level">
+              A1 · Unité {view === 'learn' ? lessonUnit.meta.number : meta.number}
+            </span>
             <h1 className="header-title">
               {view === 'home'
                 ? meta.title
                 : view === 'learn'
-                  ? 'Leçon'
+                  ? lessonUnit.meta.title
                   : view === 'review'
                     ? 'À revoir'
-                    : getStepLabel(view, dailySessionSteps)}
+                    : stepLabel(view)}
             </h1>
           </div>
           <div className="header-actions">
             {progress.streak > 0 && (
-              <span className="streak streak--mobile" title="Day streak">
+              <span className="streak streak--mobile" title="Série de jours">
                 🔥 {progress.streak}
               </span>
             )}
@@ -120,19 +221,32 @@ export default function App() {
             <Home
               unit={unit}
               units={units}
+              course={course}
               progress={progress}
               todayComplete={todayComplete}
-              onSelectUnit={selectUnit}
-              onOpenLesson={() => setView('learn')}
+              onSetStatus={setStatus}
+              onOpenLesson={openLesson}
               onOpenReview={() => setView('review')}
-              onSelectStep={(id) => setView(id)}
+              onSelectStep={openPractice}
               onReset={resetProgress}
             />
           )}
           {view === 'learn' && (
             <Lesson
-              unit={unit}
-              onStartPractice={() => setView('flashcards')}
+              key={`${lessonUnit.meta.number}-${situationId ?? 'overview'}`}
+              unit={lessonUnit}
+              initialSituationId={situationId}
+              practiceLabel={`l’unité ${meta.number}`}
+              onStartPractice={
+                lessonUnit.meta.number === unitNumber
+                  ? () => openPractice('flashcards')
+                  : undefined
+              }
+              onAdoptAndPractice={
+                lessonUnit.meta.number === unitNumber
+                  ? undefined
+                  : () => adoptAndPractice(lessonUnit.meta.number)
+              }
             />
           )}
           {view === 'review' && (
@@ -147,6 +261,9 @@ export default function App() {
               flashcards={flashcards}
               categories={categories}
               priorityIds={reviewCardIds}
+              nextStep={nextAfter('flashcards')}
+              onHome={goHome}
+              onNext={openPractice}
               onComplete={(scores) => {
                 updateProgress({
                   flashcardScores: { ...progress.flashcardScores, ...scores },
@@ -159,46 +276,55 @@ export default function App() {
                     .filter(([, rating]) => rating === 'know')
                     .map(([id]) => ({ kind: 'flashcard' as const, id })),
                 );
-                handleStepComplete('flashcards');
+                recordStep('flashcards');
               }}
             />
           )}
           {view === 'quiz' && (
             <Quiz
               questions={multipleChoice}
+              nextStep={nextAfter('quiz')}
+              onHome={goHome}
+              onNext={openPractice}
               onComplete={({ score, missedIds, correctIds }) => {
                 updateProgress({ quizScore: score });
                 recordReview(
                   missedIds.map((id) => ({ kind: 'quiz', id })),
                   correctIds.map((id) => ({ kind: 'quiz', id })),
                 );
-                handleStepComplete('quiz');
+                recordStep('quiz');
               }}
             />
           )}
           {view === 'fill' && (
             <FillBlank
               exercises={fillBlank}
+              nextStep={nextAfter('fill')}
+              onHome={goHome}
+              onNext={openPractice}
               onComplete={({ score, missedIds, correctIds }) => {
                 updateProgress({ fillScore: score });
                 recordReview(
                   missedIds.map((id) => ({ kind: 'fill', id })),
                   correctIds.map((id) => ({ kind: 'fill', id })),
                 );
-                handleStepComplete('fill');
+                recordStep('fill');
               }}
             />
           )}
           {view === 'conjugate' && (
             <Conjugation
               exercises={conjugationExercises}
+              nextStep={nextAfter('conjugate')}
+              onHome={goHome}
+              onNext={openPractice}
               onComplete={({ missed, correct }) => {
                 updateProgress({ conjugationComplete: true });
                 recordReview(
                   missed.map((row) => ({ kind: 'conjugate', id: row.id, pronoun: row.pronoun })),
                   correct.map((row) => ({ kind: 'conjugate', id: row.id, pronoun: row.pronoun })),
                 );
-                handleStepComplete('conjugate');
+                recordStep('conjugate');
               }}
             />
           )}
@@ -206,17 +332,20 @@ export default function App() {
             <Mission
               prompts={missionPrompts}
               completedIds={progress.missionsCompleted}
+              nextStep={nextAfter('mission')}
+              onHome={goHome}
+              onNext={openPractice}
               onComplete={(missionId) => {
                 updateProgress({
                   missionsCompleted: [...new Set([...progress.missionsCompleted, missionId])],
                 });
-                handleStepComplete('mission');
+                recordStep('mission');
               }}
             />
           )}
         </main>
 
-        <nav className="bottom-nav" aria-label="Study modes">
+        <nav className="bottom-nav" aria-label="Navigation">
           <button
             type="button"
             className={`nav-item ${view === 'home' ? 'nav-item--active' : ''}`}
@@ -225,30 +354,35 @@ export default function App() {
             <span className="nav-icon">🏠</span>
             <span className="nav-label">Accueil</span>
           </button>
-          {dailySessionSteps.map((step) => {
-            const done = progress.completedSteps.includes(step.id);
-            const active = view === step.id;
-            return (
-              <button
-                key={step.id}
-                type="button"
-                className={`nav-item ${done ? 'nav-item--done' : ''} ${active ? 'nav-item--active' : ''}`}
-                onClick={() => setView(step.id)}
-              >
-                <span className="nav-icon">{stepIcons[step.id]}</span>
-                <span className="nav-label">{step.label}</span>
-              </button>
-            );
-          })}
+          <button
+            type="button"
+            className={`nav-item ${view === 'learn' ? 'nav-item--active' : ''}`}
+            onClick={() => openLesson(readingUnit ?? unitNumber, view === 'learn' ? situationId : undefined)}
+          >
+            <span className="nav-icon">📖</span>
+            <span className="nav-label">Leçon</span>
+          </button>
+          <button
+            type="button"
+            className={`nav-item ${isSessionStep(view) ? 'nav-item--active' : ''} ${
+              progress.completedSteps.length === dailySessionSteps.length ? 'nav-item--done' : ''
+            }`}
+            onClick={() => openPractice(isSessionStep(view) ? view : continueStep)}
+          >
+            <span className="nav-icon">✎</span>
+            <span className="nav-label">Pratique</span>
+          </button>
+          <button
+            type="button"
+            className={`nav-item ${view === 'review' ? 'nav-item--active' : ''}`}
+            onClick={() => setView('review')}
+          >
+            <span className="nav-icon">🔁</span>
+            <span className="nav-label">À revoir</span>
+            {reviewCount > 0 && <span className="review-badge review-badge--nav">{reviewCount}</span>}
+          </button>
         </nav>
       </div>
     </div>
   );
-}
-
-function getStepLabel(
-  view: SessionStepId,
-  steps: ReadonlyArray<{ id: SessionStepId; label: string }>,
-): string {
-  return steps.find((s) => s.id === view)?.label ?? view;
 }

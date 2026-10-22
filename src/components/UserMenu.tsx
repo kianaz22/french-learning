@@ -11,12 +11,12 @@ export function UserMenu({ syncStatus }: Props) {
   if (isGuest || !user) {
     return (
       <button type="button" className="user-signin" onClick={clearGuest}>
-        Sign in
+        Connexion
       </button>
     );
   }
 
-  const email = user.email ?? 'Account';
+  const email = user.email ?? 'Compte';
   const short = email.includes('@') ? email.split('@')[0] : email;
 
   return (
@@ -36,8 +36,8 @@ export function UserMenu({ syncStatus }: Props) {
       <span className="user-email" title={email}>
         {short}
       </span>
-      <button type="button" className="user-signout" onClick={() => signOut()} aria-label="Sign out">
-        Out
+      <button type="button" className="user-signout" onClick={() => signOut()} aria-label="Se déconnecter">
+        Sortir
       </button>
     </div>
   );
@@ -61,14 +61,14 @@ function syncIcon(status: SyncStatus): string {
 function syncLabel(status: SyncStatus): string {
   switch (status) {
     case 'syncing':
-      return 'Syncing…';
+      return 'Synchronisation…';
     case 'synced':
-      return 'Synced to cloud';
+      return 'Synchronisé';
     case 'error':
-      return 'Sync failed';
+      return 'Échec de la sync';
     case 'offline':
-      return 'Offline — saved locally';
+      return 'Hors ligne — enregistré ici';
     default:
-      return 'Cloud sync';
+      return 'Sync cloud';
   }
 }

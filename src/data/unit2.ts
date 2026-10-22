@@ -13,7 +13,37 @@ export const unit2: UnitContent = {
   },
   lesson: {
     overview:
-      "Dans l'unité 2, « On fait quoi ce week-end ? », vous apprenez à nommer les objets du quotidien, à parler de vos loisirs et de vos sports, et à dire ce que vous aimez, adorez ou détestez. Les possessifs (mon, ma, mes… notre, votre, leur) vous permettent de situer ces objets et ces activités : mon sac, nos vélos, leur match. Vous travaillerez aussi deux verbes de mouvement et d'action — aller et faire — avec les contractions à et de : on va au cinéma, on fait du tennis, on va à la piscine. Pour organiser une sortie, il vous faut l'heure, le jour et une invitation : Quelle heure est-il ? On va au restaurant samedi ? — Oui, avec plaisir / Non, je préfère rester à la maison. Lisez le dialogue à voix haute, copiez les phrases clés, puis réécrivez-les avec vos propres goûts et vos vrais plans de week-end. En fin d'unité, vous pourrez décrire ce qu'il y a dans votre sac, comparer des loisirs et proposer une sortie à un ami.",
+      "Dans l'unité 2, « On fait quoi ce week-end ? », vous apprenez à nommer les objets du quotidien, à parler de vos loisirs et de vos sports, et à dire ce que vous aimez, adorez ou détestez. Les possessifs (mon, ma, mes… notre, votre, leur) vous permettent de situer ces objets et ces activités : mon sac, nos vélos, leur match. Vous travaillerez aussi deux verbes de mouvement et d'action — aller et faire — avec les contractions à et de : on va au cinéma, on fait du tennis, on va à la piscine. Pour organiser une sortie, il vous faut l'heure, le jour et une invitation : Quelle heure est-il ? On va au restaurant samedi ? — Oui, avec plaisir / Non, je préfère rester à la maison.",
+    memo:
+      "Comme dans le livre : trois situations, puis tu révises. Ouvre une carte au lieu de chercher la page.",
+    situations: [
+      {
+        id: 's1',
+        number: 1,
+        title: 'Identifier des objets',
+        goal: 'Nommer ce qu’il y a dans un sac ou une pièce : c’est un…, ce sont des…, il y a, mon / ma / mes.',
+        grammarIds: ['g1', 'g2', 'g3', 'g10'],
+        phraseContexts: ['Identifier', 'Présence', 'Possessif'],
+      },
+      {
+        id: 's2',
+        number: 2,
+        title: 'Parler de ses goûts',
+        goal: 'Dire ce que tu aimes, adores ou détestes — un sport, un loisir, ou une action (j’aime danser).',
+        grammarIds: ['g4'],
+        phraseContexts: ['Goûts', 'Goûts + infinitif', 'Négation', 'Préférence', 'Opinion'],
+        verbIds: ['conj1', 'conj2', 'conj3', 'conj6', 'conj7', 'conj8', 'conj9', 'conj10'],
+      },
+      {
+        id: 's3',
+        number: 3,
+        title: 'On fait quoi ce week-end ?',
+        goal: 'Proposer une sortie : aller au / à la, faire du / de la, on va… ?, un jour et une heure.',
+        grammarIds: ['g5', 'g6', 'g7', 'g8', 'g9', 'g11', 'g12'],
+        phraseContexts: ['Aller + au', 'Aller + à la', 'Faire + du', 'Faire + de la', 'Invitation', 'Accepter', 'Refuser', 'Alternative', 'Heure', 'Rendez-vous', 'Plans', 'Clore'],
+        verbIds: ['conj4', 'conj5'],
+      },
+    ],
     grammar: [
       {
         id: 'g1',
@@ -650,6 +680,14 @@ export const unit2: UnitContent = {
       verb: 'aimer',
       tense: 'Présent',
       english: 'to like',
+      group: 'er',
+      stem: 'aim',
+      patternNote: 'Régulier -er. J’aime + nom ou infinitif : j’aime le cinéma, j’aime danser.',
+      examples: [
+        { french: 'J’aime le cinéma.', english: 'I like cinema.' },
+        { french: 'Tu aimes danser ?', english: 'Do you like dancing?' },
+        { french: 'Nous n’aimons pas le football.', english: 'We don’t like football.' },
+      ],
       rows: [
         { pronoun: 'je', answer: 'aime' },
         { pronoun: 'tu', answer: 'aimes' },
@@ -664,6 +702,14 @@ export const unit2: UnitContent = {
       verb: 'adorer',
       tense: 'Présent',
       english: 'to love / adore',
+      group: 'er',
+      stem: 'ador',
+      patternNote: 'Régulier -er. Plus fort que aimer : j’adore = I love / I really like.',
+      examples: [
+        { french: 'J’adore le café.', english: 'I love coffee.' },
+        { french: 'Elle adore voyager.', english: 'She loves travelling.' },
+        { french: 'Ils adorent ce film.', english: 'They love this film.' },
+      ],
       rows: [
         { pronoun: 'je', answer: 'adore' },
         { pronoun: 'tu', answer: 'adores' },
@@ -678,6 +724,14 @@ export const unit2: UnitContent = {
       verb: 'détester',
       tense: 'Présent',
       english: 'to hate',
+      group: 'er',
+      stem: 'détest',
+      patternNote: 'Régulier -er. Détester + nom ou infinitif. Moins brutal à l’oral : je n’aime pas.',
+      examples: [
+        { french: 'Je déteste le froid.', english: 'I hate the cold.' },
+        { french: 'Tu détestes attendre ?', english: 'Do you hate waiting?' },
+        { french: 'On déteste ce restaurant.', english: 'We hate this restaurant.' },
+      ],
       rows: [
         { pronoun: 'je', answer: 'déteste' },
         { pronoun: 'tu', answer: 'détestes' },
@@ -692,6 +746,14 @@ export const unit2: UnitContent = {
       verb: 'faire',
       tense: 'Présent',
       english: 'to do / make',
+      group: 'irregular',
+      patternNote:
+        'Irrégulier : je fais, nous faisons, vous faites, ils font. Sports : faire du tennis, de la danse, de l’équitation.',
+      examples: [
+        { french: 'Je fais du tennis.', english: 'I play tennis.' },
+        { french: 'Vous faites de la danse ?', english: 'Do you do dance?' },
+        { french: 'Ils font du vélo le dimanche.', english: 'They cycle on Sundays.' },
+      ],
       rows: [
         { pronoun: 'je', answer: 'fais' },
         { pronoun: 'tu', answer: 'fais' },
@@ -706,6 +768,14 @@ export const unit2: UnitContent = {
       verb: 'aller',
       tense: 'Présent',
       english: 'to go',
+      group: 'irregular',
+      patternNote:
+        'Irrégulier : je vais, tu vas, il va, nous allons, vous allez, ils vont. Aller au cinéma, à la piscine, chez moi.',
+      examples: [
+        { french: 'Je vais au musée.', english: 'I’m going to the museum.' },
+        { french: 'On va à la piscine ?', english: 'Shall we go to the pool?' },
+        { french: 'Ils vont chez Marie.', english: 'They’re going to Marie’s.' },
+      ],
       rows: [
         { pronoun: 'je', answer: 'vais' },
         { pronoun: 'tu', answer: 'vas' },
@@ -720,6 +790,14 @@ export const unit2: UnitContent = {
       verb: 'préférer',
       tense: 'Présent',
       english: 'to prefer',
+      group: 'er',
+      patternNote:
+        '-er avec accent : è au singulier et à ils/elles (je préfère), é à nous/vous (nous préférons).',
+      examples: [
+        { french: 'Je préfère le café.', english: 'I prefer coffee.' },
+        { french: 'Tu préfères rester ici ?', english: 'Would you rather stay here?' },
+        { french: 'Nous préférons le vélo.', english: 'We prefer cycling.' },
+      ],
       rows: [
         { pronoun: 'je', answer: 'préfère' },
         { pronoun: 'tu', answer: 'préfères' },
@@ -734,6 +812,14 @@ export const unit2: UnitContent = {
       verb: 'jouer',
       tense: 'Présent',
       english: 'to play',
+      group: 'er',
+      stem: 'jou',
+      patternNote: 'Régulier -er. Jouer à + jeu/sport (au foot), jouer de + instrument (du piano).',
+      examples: [
+        { french: 'Je joue au foot.', english: 'I play football.' },
+        { french: 'Elle joue du piano.', english: 'She plays the piano.' },
+        { french: 'Nous jouons ensemble.', english: 'We play together.' },
+      ],
       rows: [
         { pronoun: 'je', answer: 'joue' },
         { pronoun: 'tu', answer: 'joues' },
@@ -748,6 +834,14 @@ export const unit2: UnitContent = {
       verb: 'danser',
       tense: 'Présent',
       english: 'to dance',
+      group: 'er',
+      stem: 'dans',
+      patternNote: 'Régulier -er. Souvent après aimer / adorer : j’aime danser.',
+      examples: [
+        { french: 'J’aime danser.', english: 'I like dancing.' },
+        { french: 'On danse ce soir ?', english: 'Shall we dance tonight?' },
+        { french: 'Ils dansent très bien.', english: 'They dance very well.' },
+      ],
       rows: [
         { pronoun: 'je', answer: 'danse' },
         { pronoun: 'tu', answer: 'danses' },
@@ -762,6 +856,14 @@ export const unit2: UnitContent = {
       verb: 'regarder',
       tense: 'Présent',
       english: 'to watch / look at',
+      group: 'er',
+      stem: 'regard',
+      patternNote: 'Régulier -er. Regarder un film, la télé, les photos.',
+      examples: [
+        { french: 'Je regarde un film.', english: 'I’m watching a film.' },
+        { french: 'Tu regardes la télé ?', english: 'Are you watching TV?' },
+        { french: 'Nous regardons les photos.', english: 'We’re looking at the photos.' },
+      ],
       rows: [
         { pronoun: 'je', answer: 'regarde' },
         { pronoun: 'tu', answer: 'regardes' },
@@ -776,6 +878,14 @@ export const unit2: UnitContent = {
       verb: 'écouter',
       tense: 'Présent',
       english: 'to listen',
+      group: 'er',
+      stem: 'écout',
+      patternNote: 'Régulier -er. Écouter de la musique, un podcast — pas « listen to » séparé : écouter + objet.',
+      examples: [
+        { french: 'J’écoute de la musique.', english: 'I listen to music.' },
+        { french: 'Elle écoute un podcast.', english: 'She listens to a podcast.' },
+        { french: 'Vous écoutez la radio ?', english: 'Do you listen to the radio?' },
+      ],
       rows: [
         { pronoun: 'je', answer: 'écoute' },
         { pronoun: 'tu', answer: 'écoutes' },

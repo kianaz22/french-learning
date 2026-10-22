@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import type { UnitContent } from '../data/types';
-import { normalizeAnswer } from '../lib/normalize';
+import { answersMatch } from '../lib/normalize';
+import { conjugationMatches, verbGroupLabel } from '../lib/conjugation';
 import { shuffle } from '../lib/exerciseSession';
 import {
   liveReviewItems,
@@ -243,8 +244,11 @@ function QuizPractice({
   const choose = (i: number) => {
     if (selected !== null) return;
     setSelected(i);
-    const ok = i === question.correctIndex;
-    setTimeout(() => onResult(ok), 1100);
+  };
+
+  const goNext = () => {
+    if (selected === null) return;
+    onResult(selected === question.correctIndex);
   };
 
   return (
@@ -259,7 +263,7 @@ function QuizPractice({
           }
           return (
             <button
-              key={opt}
+              key={`${question.id}-${i}`}
               type="button"
               className={cls}
               onClick={() => choose(i)}
@@ -272,6 +276,11 @@ function QuizPractice({
       </div>
       {selected !== null && question.explanation && (
         <p className="explanation">{question.explanation}</p>
+      )}
+      {selected !== null && (
+        <button type="button" className="btn btn--primary btn--full" onClick={goNext}>
+          Suivant
+        </button>
       )}
     </>
   );
@@ -290,9 +299,8 @@ function FillPractice({
 
   const check = () => {
     if (feedback) return;
-    const ok = normalizeAnswer(input) === normalizeAnswer(exercise.answer);
+    const ok = answersMatch(input, exercise.answer);
     setFeedback(ok ? 'correct' : 'wrong');
-    setTimeout(() => onResult(ok), ok ? 700 : 1200);
   };
 
   return (
@@ -304,12 +312,16 @@ function FillPractice({
           className={`fill-input ${feedback === 'correct' ? 'fill-input--ok' : ''} ${feedback === 'wrong' ? 'fill-input--bad' : ''}`}
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && check()}
+          onKeyDown={(e) => {
+            if (e.key !== 'Enter') return;
+            if (feedback) onResult(feedback === 'correct');
+            else check();
+          }}
           disabled={feedback !== null}
           autoComplete="off"
           autoCapitalize="off"
           spellCheck={false}
-          aria-label="Your answer"
+          aria-label="Votre réponse"
         />
         {parts[1] ?? ''}
       </div>
@@ -321,10 +333,10 @@ function FillPractice({
       <button
         type="button"
         className="btn btn--primary btn--full"
-        onClick={check}
-        disabled={!input.trim() || feedback !== null}
+        onClick={() => (feedback ? onResult(feedback === 'correct') : check())}
+        disabled={!feedback && !input.trim()}
       >
-        Vérifier
+        {feedback ? 'Suivant' : 'Vérifier'}
       </button>
     </>
   );
@@ -387,17 +399,21 @@ function ConjPractice({
 
   const check = () => {
     if (feedback) return;
-    const ok = normalizeAnswer(input) === normalizeAnswer(row.answer);
+    const ok = conjugationMatches(input, row.answer, row.pronoun);
     setFeedback(ok ? 'correct' : 'wrong');
-    setTimeout(() => onResult(ok), ok ? 700 : 1200);
+    setTimeout(() => onResult(ok), ok ? 700 : 1400);
   };
 
   return (
     <>
       <div className="conj-header">
+        <span className="verb-group-badge verb-group-badge--center">{verbGroupLabel[verb.group]}</span>
         <span className="conj-verb">{verb.verb}</span>
         <span className="conj-meta">{verb.tense} · {verb.english}</span>
       </div>
+      {verb.patternNote && !feedback && (
+        <p className="verb-note verb-note--drill">{verb.patternNote}</p>
+      )}
       <div className="conj-prompt">
         <span className="conj-pronoun">{row.pronoun}</span>
         <input

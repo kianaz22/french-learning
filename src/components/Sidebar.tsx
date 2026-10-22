@@ -43,10 +43,10 @@ export function Sidebar({ unit, view, progress, reviewCount = 0, syncStatus, onN
         <p className="sidebar-progress-label">
           {completed}/{total} activités · {pct}%
           {progress.streak > 0 && ` · 🔥 ${progress.streak}`}
-          {syncStatus === 'syncing' && ' · syncing'}
-          {syncStatus === 'synced' && ' · ☁ synced'}
-          {syncStatus === 'offline' && ' · offline'}
-          {syncStatus === 'error' && ' · sync failed'}
+          {syncStatus === 'syncing' && ' · sync…'}
+          {syncStatus === 'synced' && ' · ☁ sync'}
+          {syncStatus === 'offline' && ' · hors ligne'}
+          {syncStatus === 'error' && ' · sync échoué'}
         </p>
       </div>
 

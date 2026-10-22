@@ -8,7 +8,7 @@ import {
   type ReactNode,
 } from 'react';
 import type { Session, User } from '@supabase/supabase-js';
-import { getSupabase, isSupabaseConfigured } from '../lib/supabase';
+import { describeAuthError, getSupabase, isSupabaseConfigured } from '../lib/supabase';
 import { isGuestMode, setGuestMode, syncProgressForUser } from '../lib/progressSync';
 
 type AuthContextValue = {
@@ -42,13 +42,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    supabase.auth.getSession().then(({ data }) => {
-      setSession(data.session);
-      setUser(data.session?.user ?? null);
-      if (data.session?.user) setGuestMode(false);
-      setIsGuest(isGuestMode());
-      setLoading(false);
-    });
+    let cancelled = false;
+    const finishLoading = () => {
+      if (!cancelled) setLoading(false);
+    };
+    const timeout = window.setTimeout(finishLoading, 4000);
+
+    supabase.auth
+      .getSession()
+      .then(({ data }) => {
+        if (cancelled) return;
+        setSession(data.session);
+        setUser(data.session?.user ?? null);
+        if (data.session?.user) setGuestMode(false);
+        setIsGuest(isGuestMode());
+      })
+      .catch(() => {
+        /* Supabase unreachable — show auth / guest instead of spinning forever */
+      })
+      .finally(() => {
+        window.clearTimeout(timeout);
+        finishLoading();
+      });
 
     const { data: sub } = supabase.auth.onAuthStateChange((_event, nextSession) => {
       setSession(nextSession);
@@ -59,35 +74,51 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     });
 
-    return () => sub.subscription.unsubscribe();
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timeout);
+      sub.subscription.unsubscribe();
+    };
   }, []);
 
   const signInWithEmail = useCallback(async (email: string, password: string) => {
     const supabase = getSupabase();
     if (!supabase) return { error: 'Supabase is not configured.' };
 
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    return { error: error?.message ?? null };
+    try {
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      return { error: error ? describeAuthError(error) : null };
+    } catch (error) {
+      return { error: describeAuthError(error) };
+    }
   }, []);
 
   const signUpWithEmail = useCallback(async (email: string, password: string) => {
     const supabase = getSupabase();
     if (!supabase) return { error: 'Supabase is not configured.', needsConfirmation: false };
 
-    const { data, error } = await supabase.auth.signUp({ email, password });
-    const needsConfirmation = !error && !data.session;
-    return { error: error?.message ?? null, needsConfirmation };
+    try {
+      const { data, error } = await supabase.auth.signUp({ email, password });
+      const needsConfirmation = !error && !data.session;
+      return { error: error ? describeAuthError(error) : null, needsConfirmation };
+    } catch (error) {
+      return { error: describeAuthError(error), needsConfirmation: false };
+    }
   }, []);
 
   const signInWithGoogle = useCallback(async () => {
     const supabase = getSupabase();
     if (!supabase) return { error: 'Supabase is not configured.' };
 
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: { redirectTo: window.location.origin },
-    });
-    return { error: error?.message ?? null };
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: { redirectTo: window.location.origin },
+      });
+      return { error: error ? describeAuthError(error) : null };
+    } catch (error) {
+      return { error: describeAuthError(error) };
+    }
   }, []);
 
   const continueAsGuest = useCallback(() => {

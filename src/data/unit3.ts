@@ -13,7 +13,37 @@ export const unit3: UnitContent = {
   },
   lesson: {
     overview:
-      "Dans l'unité 3, « On va où cet été ? », vous apprenez à parler de la météo, à vous repérer en ville et à raconter vos projets de week-end ou de vacances. Le futur proche (aller + infinitif) devient votre outil principal pour dire ce que vous allez faire demain, ce week-end ou cet été — conjuguez aller aux six personnes jusqu'à ce que je vais, tu vas, nous allons soient automatiques. Vous travaillez aussi les questions de chemin (où est, excusez-moi), les indications (tout droit, à gauche, puis), les prépositions de lieu avec leurs contractions, et les démonstratifs ce / cet / cette / ces. Deux verbes de déplacement complètent le tableau : venir (présent et venir de + lieu) et prendre + un moyen de transport, avec le choix en / à (en bus, à pied). Pour bien mémoriser, lisez le dialogue à voix haute, copiez les phrases clés, puis réécrivez-les avec une vraie ville et vos vrais projets — ne vous contentez pas de reconnaître, produisez. En fin d'unité, vous pourrez demander votre chemin dans la rue, décrire le temps qu'il fait et annoncer un voyage en quelques phrases claires.",
+      "Dans l'unité 3, « On va où cet été ? », vous apprenez à parler de la météo, à vous repérer en ville et à raconter vos projets de week-end ou de vacances. Le futur proche (aller + infinitif) devient votre outil principal pour dire ce que vous allez faire demain, ce week-end ou cet été.",
+    memo:
+      "Comme dans le livre : météo, la ville, puis le chemin. Ouvre une carte au lieu de chercher la page.",
+    situations: [
+      {
+        id: 's1',
+        number: 1,
+        title: 'Parler de la météo',
+        goal: 'Dire le temps qu’il fait : il fait beau, il pleut, il y a du vent, en hiver, cet été.',
+        grammarIds: ['g1', 'g2'],
+        phraseContexts: ['Météo (oral)', 'Météo (soigné)', 'Météo', 'Saisons'],
+      },
+      {
+        id: 's2',
+        number: 2,
+        title: 'S’informer sur une ville',
+        goal: 'Parler d’une ville et de tes projets : il y a, on peut, je vais visiter, en bus, à pied.',
+        grammarIds: ['g3', 'g7', 'g8', 'g9', 'g10', 'g12'],
+        phraseContexts: ['Projets', 'Futur proche', 'Ville', 'Démonstratifs', 'Transport', 'en / à', 'Venir'],
+        verbIds: ['conj1', 'conj2', 'conj3', 'conj4', 'conj5'],
+      },
+      {
+        id: 's3',
+        number: 3,
+        title: 'Demander et indiquer son chemin',
+        goal: 'Arrêter quelqu’un (vous) et donner le chemin : tout droit, à gauche, près de, puis.',
+        grammarIds: ['g4', 'g5', 'g6', 'g11'],
+        phraseContexts: ['Demander son chemin', 'Donner le chemin', 'Localisation', 'Distance', 'Directions', 'tu', 'vous', 'Politesse'],
+        verbIds: ['conj6', 'conj8', 'conj9', 'conj10'],
+      },
+    ],
     grammar: [
       {
         id: 'g1',
@@ -632,6 +662,14 @@ export const unit3: UnitContent = {
       verb: 'aller',
       tense: 'Présent',
       english: 'to go',
+      group: 'irregular',
+      patternNote:
+        'Irrégulier, et base du futur proche : aller + infinitif (je vais visiter). Je vais, tu vas, il va, nous allons, vous allez, ils vont.',
+      examples: [
+        { french: 'Je vais visiter Marseille.', english: 'I’m going to visit Marseille.' },
+        { french: 'Nous allons prendre le train.', english: 'We’re going to take the train.' },
+        { french: 'Tu vas où cet été ?', english: 'Where are you going this summer?' },
+      ],
       rows: [
         { pronoun: 'je', answer: 'vais' },
         { pronoun: 'tu', answer: 'vas' },
@@ -646,6 +684,14 @@ export const unit3: UnitContent = {
       verb: 'venir',
       tense: 'Présent',
       english: 'to come',
+      group: 'irregular',
+      stem: 'ven',
+      patternNote: 'Je viens, nous venons, ils viennent. Venir de + lieu : je viens de la gare.',
+      examples: [
+        { french: 'Je viens de la gare.', english: 'I’m coming from the station.' },
+        { french: 'Vous venez avec nous ?', english: 'Are you coming with us?' },
+        { french: 'Ils viennent demain.', english: 'They’re coming tomorrow.' },
+      ],
       rows: [
         { pronoun: 'je', answer: 'viens' },
         { pronoun: 'tu', answer: 'viens' },
@@ -660,6 +706,15 @@ export const unit3: UnitContent = {
       verb: 'prendre',
       tense: 'Présent',
       english: 'to take',
+      group: 'irregular',
+      stem: 'pren',
+      patternNote:
+        'Je prends, il prend, nous prenons, ils prennent. Transports : prendre le bus, le train, un taxi.',
+      examples: [
+        { french: 'Je prends le métro.', english: 'I take the metro.' },
+        { french: 'Nous prenons le train demain.', english: 'We’re taking the train tomorrow.' },
+        { french: 'Ils prennent un taxi.', english: 'They’re taking a taxi.' },
+      ],
       rows: [
         { pronoun: 'je', answer: 'prends' },
         { pronoun: 'tu', answer: 'prends' },
@@ -674,6 +729,14 @@ export const unit3: UnitContent = {
       verb: 'visiter',
       tense: 'Présent',
       english: 'to visit (a place)',
+      group: 'er',
+      stem: 'visit',
+      patternNote: 'Régulier -er. Visiter un lieu (un musée, une ville). Pour une personne : rendre visite à.',
+      examples: [
+        { french: 'Je visite le musée.', english: 'I’m visiting the museum.' },
+        { french: 'On visite Lyon cet été.', english: 'We’re visiting Lyon this summer.' },
+        { french: 'Vous visitez le marché ?', english: 'Are you visiting the market?' },
+      ],
       rows: [
         { pronoun: 'je', answer: 'visite' },
         { pronoun: 'tu', answer: 'visites' },
@@ -688,6 +751,14 @@ export const unit3: UnitContent = {
       verb: 'voyager',
       tense: 'Présent',
       english: 'to travel',
+      group: 'er',
+      stem: 'voyag',
+      patternNote: 'Régulier -er avec -geons au nous : nous voyageons (un e pour garder le son [ʒ]).',
+      examples: [
+        { french: 'Je voyage en France.', english: 'I travel in France.' },
+        { french: 'Nous voyageons cet été.', english: 'We’re travelling this summer.' },
+        { french: 'Elle voyage beaucoup.', english: 'She travels a lot.' },
+      ],
       rows: [
         { pronoun: 'je', answer: 'voyage' },
         { pronoun: 'tu', answer: 'voyages' },
@@ -702,6 +773,14 @@ export const unit3: UnitContent = {
       verb: 'partir',
       tense: 'Présent',
       english: 'to leave',
+      group: 'ir',
+      stem: 'par',
+      patternNote: '3e groupe : je pars, tu pars, il part, nous partons. Partir à + heure / de + lieu.',
+      examples: [
+        { french: 'Je pars à 8 heures.', english: 'I leave at 8 o’clock.' },
+        { french: 'Tu pars d’où ?', english: 'Where are you leaving from?' },
+        { french: 'Nous partons demain.', english: 'We’re leaving tomorrow.' },
+      ],
       rows: [
         { pronoun: 'je', answer: 'pars' },
         { pronoun: 'tu', answer: 'pars' },
@@ -716,6 +795,14 @@ export const unit3: UnitContent = {
       verb: 'rester',
       tense: 'Présent',
       english: 'to stay / to remain',
+      group: 'er',
+      stem: 'rest',
+      patternNote: 'Régulier -er. Je reste ici / à l’hôtel. Contraste : partir vs rester.',
+      examples: [
+        { french: 'Je reste ici ce week-end.', english: 'I’m staying here this weekend.' },
+        { french: 'On reste à l’hôtel.', english: 'We’re staying at the hotel.' },
+        { french: 'Vous restez combien de jours ?', english: 'How many days are you staying?' },
+      ],
       rows: [
         { pronoun: 'je', answer: 'reste' },
         { pronoun: 'tu', answer: 'restes' },
@@ -730,6 +817,14 @@ export const unit3: UnitContent = {
       verb: 'descendre',
       tense: 'Présent',
       english: 'to go down / to get off',
+      group: 're',
+      stem: 'descend',
+      patternNote: '3e groupe -re : je descends, il descend, nous descendons. Descendre à + arrêt / station.',
+      examples: [
+        { french: 'Je descends à la gare.', english: 'I get off at the station.' },
+        { french: 'Vous descendez ici ?', english: 'Are you getting off here?' },
+        { french: 'On descend au prochain arrêt.', english: 'We’re getting off at the next stop.' },
+      ],
       rows: [
         { pronoun: 'je', answer: 'descends' },
         { pronoun: 'tu', answer: 'descends' },
@@ -744,6 +839,14 @@ export const unit3: UnitContent = {
       verb: 'tourner',
       tense: 'Présent',
       english: 'to turn',
+      group: 'er',
+      stem: 'tourn',
+      patternNote: 'Régulier -er. Indications : tournez à gauche, tournez à droite, au feu.',
+      examples: [
+        { french: 'Tournez à gauche.', english: 'Turn left.' },
+        { french: 'On tourne au feu.', english: 'We turn at the traffic light.' },
+        { french: 'Vous tournez à droite.', english: 'You turn right.' },
+      ],
       rows: [
         { pronoun: 'je', answer: 'tourne' },
         { pronoun: 'tu', answer: 'tournes' },
@@ -758,6 +861,14 @@ export const unit3: UnitContent = {
       verb: 'continuer',
       tense: 'Présent',
       english: 'to continue',
+      group: 'er',
+      stem: 'continu',
+      patternNote: 'Régulier -er. Continuer tout droit, continuer jusqu’à la place.',
+      examples: [
+        { french: 'Continuez tout droit.', english: 'Continue straight on.' },
+        { french: 'On continue jusqu’au pont.', english: 'We continue as far as the bridge.' },
+        { french: 'Je continue à pied.', english: 'I’ll continue on foot.' },
+      ],
       rows: [
         { pronoun: 'je', answer: 'continue' },
         { pronoun: 'tu', answer: 'continues' },

@@ -26,7 +26,7 @@ export function AuthScreen() {
       const result = await signUpWithEmail(email, password);
       if (result.error) setError(result.error);
       else if (result.needsConfirmation) {
-        setInfo('Check your email to confirm your account, then sign in.');
+        setInfo('Vérifiez votre e-mail pour confirmer le compte, puis connectez-vous.');
         setMode('signin');
       }
     }
@@ -46,13 +46,13 @@ export function AuthScreen() {
       <div className="auth-screen">
         <div className="auth-card">
           <p className="auth-eyebrow">L&apos;Atelier Companion</p>
-          <h1 className="auth-title">Cloud sync not configured</h1>
+          <h1 className="auth-title">Sync cloud non configurée</h1>
           <p className="auth-sub">
-            Add your Supabase keys to <code>.env</code> to enable sign-in and sync. You can still
-            use the app locally.
+            Ajoutez vos clés Supabase dans <code>.env</code> pour la connexion et la sync. Vous
+            pouvez quand même utiliser l’app ici.
           </p>
           <button type="button" className="btn btn--primary btn--full" onClick={continueAsGuest}>
-            Continue without account
+            Continuer sans compte
           </button>
         </div>
       </div>
@@ -65,12 +65,12 @@ export function AuthScreen() {
         <p className="auth-eyebrow">L&apos;Atelier Companion</p>
         <h1 className="auth-title">{mode === 'signin' ? 'Bon retour !' : 'Créer un compte'}</h1>
         <p className="auth-sub">
-          Sign in to sync your progress across devices. Free with Supabase.
+          Connectez-vous pour synchroniser votre progression. Gratuit avec Supabase.
         </p>
 
         <form className="auth-form" onSubmit={submit}>
           <label className="auth-label">
-            Email
+            E-mail
             <input
               type="email"
               className="auth-input"
@@ -83,7 +83,7 @@ export function AuthScreen() {
           </label>
 
           <label className="auth-label">
-            Password
+            Mot de passe
             <input
               type="password"
               className="auth-input"
@@ -100,38 +100,38 @@ export function AuthScreen() {
           {info && <p className="auth-info">{info}</p>}
 
           <button type="submit" className="btn btn--primary btn--full" disabled={busy}>
-            {busy ? '…' : mode === 'signin' ? 'Sign in' : 'Create account'}
+            {busy ? '…' : mode === 'signin' ? 'Connexion' : 'Créer le compte'}
           </button>
         </form>
 
         <div className="auth-divider">
-          <span>or</span>
+          <span>ou</span>
         </div>
 
         <button type="button" className="btn btn--secondary btn--full auth-google" onClick={google} disabled={busy}>
-          Continue with Google
+          Continuer avec Google
         </button>
 
         <p className="auth-switch">
           {mode === 'signin' ? (
             <>
-              No account?{' '}
+              Pas de compte ?{' '}
               <button type="button" className="auth-link" onClick={() => { setMode('signup'); setError(null); }}>
-                Sign up
+                Inscription
               </button>
             </>
           ) : (
             <>
-              Already have an account?{' '}
+              Déjà un compte ?{' '}
               <button type="button" className="auth-link" onClick={() => { setMode('signin'); setError(null); }}>
-                Sign in
+                Connexion
               </button>
             </>
           )}
         </p>
 
         <button type="button" className="auth-guest" onClick={continueAsGuest}>
-          Continue without account →
+          Continuer sans compte →
         </button>
       </div>
     </div>

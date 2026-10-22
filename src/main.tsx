@@ -5,11 +5,18 @@ import { AuthProvider } from './contexts/AuthProvider';
 import './styles/global.css';
 
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js').catch(() => {
-      /* offline support optional */
+  if (import.meta.env.PROD) {
+    window.addEventListener('load', () => {
+      const base = import.meta.env.BASE_URL;
+      navigator.serviceWorker.register(`${base}sw.js`, { scope: base }).catch(() => {
+        /* offline support optional */
+      });
     });
-  });
+  } else {
+    navigator.serviceWorker.getRegistrations().then((regs) => {
+      regs.forEach((reg) => reg.unregister());
+    });
+  }
 }
 
 createRoot(document.getElementById('root')!).render(

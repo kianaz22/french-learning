@@ -1,16 +1,28 @@
 import { useMemo, useState } from 'react';
-import type { Flashcard } from '../data/types';
+import type { Flashcard, SessionStepId } from '../data/types';
 import { FLASH_SESSION_SIZE } from '../data/types';
 import { shuffle } from '../lib/exerciseSession';
+import { ResultActions } from './ResultActions';
 
 type Props = {
   flashcards: Flashcard[];
   categories: string[];
   priorityIds?: string[];
+  nextStep: SessionStepId | null;
   onComplete: (scores: Record<string, 'know' | 'learning'>) => void;
+  onHome: () => void;
+  onNext: (id: SessionStepId) => void;
 };
 
-export function Flashcards({ flashcards, categories, priorityIds = [], onComplete }: Props) {
+export function Flashcards({
+  flashcards,
+  categories,
+  priorityIds = [],
+  nextStep,
+  onComplete,
+  onHome,
+  onNext,
+}: Props) {
   const [category, setCategory] = useState<string>('all');
   const [index, setIndex] = useState(0);
   const [flipped, setFlipped] = useState(false);
@@ -55,6 +67,7 @@ export function Flashcards({ flashcards, categories, priorityIds = [], onComplet
           <p className="hint">Banque : {flashcards.length} cartes — un nouveau set à chaque session</p>
         )}
         <p className="hint">Les cartes « Encore » reviendront en priorité la prochaine fois.</p>
+        <ResultActions nextStep={nextStep} onHome={onHome} onNext={onNext} />
       </div>
     );
   }
@@ -89,7 +102,7 @@ export function Flashcards({ flashcards, categories, priorityIds = [], onComplet
             type="button"
             className={`flashcard ${flipped ? 'flashcard--flipped' : ''}`}
             onClick={() => setFlipped((f) => !f)}
-            aria-label="Flip card"
+            aria-label="Retourner la carte"
           >
             <div className="flashcard-inner">
               <div className="flashcard-face flashcard-front">

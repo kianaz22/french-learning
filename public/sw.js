@@ -1,5 +1,13 @@
-const CACHE = 'atelier-v1';
-const ASSETS = ['/', '/index.html', '/manifest.webmanifest', '/favicon.svg', '/pwa-192.png', '/pwa-512.png'];
+const CACHE = 'atelier-v3';
+const BASE = self.location.pathname.replace(/sw\.js$/, '');
+const ASSETS = [
+  BASE,
+  `${BASE}index.html`,
+  `${BASE}manifest.webmanifest`,
+  `${BASE}favicon.svg`,
+  `${BASE}pwa-192.png`,
+  `${BASE}pwa-512.png`,
+];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(ASSETS)));

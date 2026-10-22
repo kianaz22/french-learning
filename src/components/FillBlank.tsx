@@ -1,8 +1,9 @@
 import { useMemo, useState } from 'react';
-import type { FillBlankExercise } from '../data/types';
+import type { FillBlankExercise, SessionStepId } from '../data/types';
 import { FILL_SESSION_SIZE } from '../data/types';
 import { sampleSession } from '../lib/exerciseSession';
-import { normalizeAnswer } from '../lib/normalize';
+import { answersMatch } from '../lib/normalize';
+import { ResultActions } from './ResultActions';
 
 export type FillResult = {
   score: number;
@@ -12,10 +13,13 @@ export type FillResult = {
 
 type Props = {
   exercises: FillBlankExercise[];
+  nextStep: SessionStepId | null;
   onComplete: (result: FillResult) => void;
+  onHome: () => void;
+  onNext: (id: SessionStepId) => void;
 };
 
-export function FillBlank({ exercises, onComplete }: Props) {
+export function FillBlank({ exercises, nextStep, onComplete, onHome, onNext }: Props) {
   const session = useMemo(
     () => sampleSession(exercises, FILL_SESSION_SIZE),
     [exercises],
@@ -27,30 +31,36 @@ export function FillBlank({ exercises, onComplete }: Props) {
   const [missedIds, setMissedIds] = useState<string[]>([]);
   const [correctIds, setCorrectIds] = useState<string[]>([]);
   const [finished, setFinished] = useState(false);
+  const [reported, setReported] = useState(false);
 
   const ex = session[index];
 
   const check = () => {
     if (!ex || feedback) return;
-    const ok = normalizeAnswer(input) === normalizeAnswer(ex.answer);
+    const ok = answersMatch(input, ex.answer);
     setFeedback(ok ? 'correct' : 'wrong');
-    const newCorrect = ok ? correct + 1 : correct;
-    const nextMissed = ok ? missedIds : [...missedIds, ex.id];
-    const nextCorrectIds = ok ? [...correctIds, ex.id] : correctIds;
-    if (ok) setCorrect(newCorrect);
-    setMissedIds(nextMissed);
-    setCorrectIds(nextCorrectIds);
+    if (ok) setCorrect((n) => n + 1);
+    setMissedIds((ids) => (ok ? ids : [...ids, ex.id]));
+    setCorrectIds((ids) => (ok ? [...ids, ex.id] : ids));
+  };
 
-    setTimeout(() => {
-      if (index + 1 >= session.length) {
-        setFinished(true);
-        onComplete({ score: newCorrect, missedIds: nextMissed, correctIds: nextCorrectIds });
-      } else {
-        setIndex((i) => i + 1);
-        setInput('');
-        setFeedback(null);
+  const goNext = () => {
+    if (!ex || !feedback) return;
+    if (index + 1 >= session.length) {
+      setFinished(true);
+      if (!reported) {
+        setReported(true);
+        onComplete({
+          score: correct,
+          missedIds,
+          correctIds,
+        });
       }
-    }, 1000);
+      return;
+    }
+    setIndex((i) => i + 1);
+    setInput('');
+    setFeedback(null);
   };
 
   if (finished) {
@@ -64,6 +74,7 @@ export function FillBlank({ exercises, onComplete }: Props) {
         {exercises.length > session.length && (
           <p className="hint">Banque : {exercises.length} phrases — un nouveau set à chaque session</p>
         )}
+        <ResultActions nextStep={nextStep} onHome={onHome} onNext={onNext} />
       </div>
     );
   }
@@ -71,6 +82,7 @@ export function FillBlank({ exercises, onComplete }: Props) {
   if (!ex) return null;
 
   const parts = ex.prompt.split('___');
+  const last = index + 1 >= session.length;
 
   return (
     <div className="study-view">
@@ -90,12 +102,16 @@ export function FillBlank({ exercises, onComplete }: Props) {
           className={`fill-input ${feedback === 'correct' ? 'fill-input--ok' : ''} ${feedback === 'wrong' ? 'fill-input--bad' : ''}`}
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && check()}
+          onKeyDown={(e) => {
+            if (e.key !== 'Enter') return;
+            if (feedback) goNext();
+            else check();
+          }}
           disabled={feedback !== null}
           autoComplete="off"
           autoCapitalize="off"
           spellCheck={false}
-          aria-label="Your answer"
+          aria-label="Votre réponse"
         />
         {parts[1] ?? ''}
       </div>
@@ -110,10 +126,10 @@ export function FillBlank({ exercises, onComplete }: Props) {
       <button
         type="button"
         className="btn btn--primary btn--full"
-        onClick={check}
-        disabled={!input.trim() || feedback !== null}
+        onClick={feedback ? goNext : check}
+        disabled={!feedback && !input.trim()}
       >
-        Vérifier
+        {feedback ? (last ? 'Voir le résultat' : 'Suivant') : 'Vérifier'}
       </button>
     </div>
   );

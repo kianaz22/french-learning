@@ -26,11 +26,22 @@ export type ConjugationRow = {
   answer: string;
 };
 
+export type VerbGroup = 'er' | 'ir' | 're' | 'irregular' | 'pronominal';
+
+export type ConjugationExample = {
+  french: string;
+  english: string;
+};
+
 export type ConjugationExercise = {
   id: string;
   verb: string;
   tense: string;
   english: string;
+  group: VerbGroup;
+  stem?: string;
+  patternNote?: string;
+  examples?: ConjugationExample[];
   rows: ConjugationRow[];
 };
 
@@ -88,8 +99,20 @@ export type CultureNote = {
   text: string;
 };
 
+export type LessonSituation = {
+  id: string;
+  number: number;
+  title: string;
+  goal: string;
+  grammarIds: string[];
+  phraseContexts: string[];
+  verbIds?: string[];
+};
+
 export type UnitLesson = {
   overview: string;
+  memo?: string;
+  situations?: LessonSituation[];
   grammar: GrammarPoint[];
   keyPhrases: KeyPhrase[];
   cultureNote?: string;
@@ -104,11 +127,11 @@ export type UnitMeta = {
 };
 
 export const dailySessionSteps = [
-  { id: 'flashcards', label: 'Cartes', duration: '8 min', description: 'Review a fresh set of vocabulary' },
-  { id: 'quiz', label: 'Quiz', duration: '12 min', description: '20 questions from a large bank' },
-  { id: 'fill', label: 'Phrases', duration: '12 min', description: '20 fill-in-the-blank drills' },
-  { id: 'conjugate', label: 'Verbes', duration: '8 min', description: '5 verbs from the unit bank' },
-  { id: 'mission', label: 'Mission', duration: '8 min', description: 'Write & produce' },
+  { id: 'flashcards', label: 'Cartes', duration: '8 min', description: 'Un jeu de vocabulaire' },
+  { id: 'quiz', label: 'Quiz', duration: '12 min', description: '20 questions de la banque' },
+  { id: 'fill', label: 'Phrases', duration: '12 min', description: '20 phrases à compléter' },
+  { id: 'conjugate', label: 'Verbes', duration: '8 min', description: '5 tableaux de conjugaison' },
+  { id: 'mission', label: 'Mission', duration: '8 min', description: 'Écrire et produire' },
 ] as const;
 
 export const QUIZ_SESSION_SIZE = 20;

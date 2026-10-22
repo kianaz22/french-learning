@@ -1,6 +1,6 @@
 # L'Atelier Companion
 
-A mobile-first PWA to practice **L'Atelier A1 — Unités 1–3** on days between class. Each unit has a detailed lesson plus large practice banks so you can drill for weeks without repeating the same set.
+A mobile-first PWA to practice **L'Atelier A1 — Unités 1–8** on days between class. Each unit has a three-situation lesson memo plus practice banks. Mark a unit **Terminé** and daily practice follows that last finished unit; you can still open any lesson without switching practice.
 
 ## Units
 
@@ -9,10 +9,13 @@ A mobile-first PWA to practice **L'Atelier A1 — Unités 1–3** on days betwee
 | 1 | *C'est qui ?* | Greetings, introductions, être / avoir / s'appeler |
 | 2 | *On fait quoi ce week-end ?* | Objects, hobbies, sports, aimer / faire / aller |
 | 3 | *On va où cet été ?* | Weather, city, directions, futur proche, venir / prendre |
+| 4 | *On mange quoi cette semaine ?* | Food habits, shopping, restaurant, partitives |
+| 5 | *C'est arrivé quand ?* | Clothes, passé composé, situating in the past |
+| 6 | *Alors ton nouveau travail ?* | Daily routine, job, colleagues |
+| 7 | *Pourquoi déménager ?* | Family, housing, comparison, venir de |
+| 8 | *Il y a un problème ?* | Health, opinion, agreement / disagreement |
 
-Each unit now includes a full lesson (12 grammar points with explanations, examples, common mistakes, a model dialogue, and culture notes) plus large practice banks: ~120–140 flashcards, 240 quiz questions, 240 fill-in-the-blanks, 10 verbs, and 20 writing missions. Daily sessions sample a fresh set so you can practice for weeks without repeating the same items.
-
-Switch units from the home screen — progress is saved separately per unit.
+Each unit includes a lesson (grammar, phrases, a model dialogue, culture notes) plus practice banks. Daily sessions sample a fresh set. Progress is saved separately per unit.
 
 Each unit includes a **Leçon** section (grammar, vocabulary, verb tables, key phrases) to study before the daily exercises.
 
@@ -56,6 +59,8 @@ Restart the dev server after editing `.env`.
 On first sign-in, local progress is **merged** with any cloud data (best streak, completed steps, scores kept).
 
 ## Install on your phone
+
+Live site: **https://kianaz22.github.io/french-learning/**
 
 1. Run `npm run build && npm run preview -- --host`, or deploy the `dist/` folder.
 2. Add your production URL to Supabase **Authentication → URL Configuration**.

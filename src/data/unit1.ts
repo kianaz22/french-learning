@@ -13,7 +13,38 @@ export const unit1: UnitContent = {
   },
   lesson: {
     overview:
-      "Dans l'unité 1, « C'est qui ? », vous apprenez à ouvrir une conversation : dire qui vous êtes, d'où vous venez, ce que vous faites, quel âge vous avez et comment vous vous sentez. Les trois verbes de base — s'appeler, être et avoir — portent presque toutes les phrases de présentation ; étudiez-les jusqu'à ce qu'ils deviennent automatiques. Vous travaillerez aussi le tutoiement et le vouvoiement, la négation, trois façons de poser une question, et l'accord des nationalités. Pour bien mémoriser, lisez le dialogue à voix haute, copiez les phrases clés, puis réécrivez-les avec vos propres informations — ne vous contentez pas de reconnaître, produisez. En fin d'unité, vous pourrez vous présenter en quelques phrases claires et poser les mêmes questions à quelqu'un que vous venez de rencontrer.",
+      "Dans l'unité 1, « C'est qui ? », vous apprenez à ouvrir une conversation : dire qui vous êtes, d'où vous venez, ce que vous faites, quel âge vous avez et comment vous vous sentez. Les trois verbes de base — s'appeler, être et avoir — portent presque toutes les phrases de présentation ; étudiez-les jusqu'à ce qu'ils deviennent automatiques. Vous travaillerez aussi le tutoiement et le vouvoiement, la négation, trois façons de poser une question, et l'accord des nationalités.",
+    memo:
+      "Comme dans le livre : trois situations pour se présenter. Ouvre une carte au lieu de chercher la page.",
+    situations: [
+      {
+        id: 's1',
+        number: 1,
+        title: 'Se présenter et présenter quelqu’un',
+        goal: 'Dire bonjour, donner son nom, présenter un ami : je m’appelle, lui c’est…, tu ou vous.',
+        grammarIds: ['g1', 'g3', 'g8', 'g10'],
+        phraseContexts: ['Première rencontre', 'Entre amis', 'Salutations', 'Question informelle', 'Question formelle', 'Se présenter', 'Présenter quelqu’un', 'Présentation formelle', 'Tutoiement', 'Politesse', 'Au revoir'],
+        verbIds: ['conj1', 'conj2'],
+      },
+      {
+        id: 's2',
+        number: 2,
+        title: 'Dire sa nationalité',
+        goal: 'Dire d’où tu viens et qui tu es : je suis canadienne, je viens du Canada, je ne suis pas…',
+        grammarIds: ['g2', 'g5', 'g6', 'g9'],
+        phraseContexts: ['Nationalité', 'Pays masculin (du)', 'Pays féminin (de)', 'Pays pluriel (des)', 'Origine', 'Ville', 'Négation', 'État'],
+        verbIds: ['conj4', 'conj5'],
+      },
+      {
+        id: 's3',
+        number: 3,
+        title: 'Demander et donner des informations',
+        goal: 'Âge, métier, langues, comment tu vas : j’ai 23 ans, je suis étudiante, j’ai faim.',
+        grammarIds: ['g4', 'g7', 'g11', 'g12'],
+        phraseContexts: ['Âge', 'Demander l’âge', 'Travail', 'Statut / métier', 'Langues', 'Sensations', 'Demander une info', 'Relancer la question'],
+        verbIds: ['conj3', 'conj7'],
+      },
+    ],
     grammar: [
       {
         id: 'g1',
@@ -616,6 +647,15 @@ export const unit1: UnitContent = {
       verb: "s'appeler",
       tense: 'Présent',
       english: 'to be called / named',
+      group: 'pronominal',
+      stem: 'appel',
+      patternNote:
+        "Verbe pronominal : le pronom réfléchi change avec la personne (me, te, se, nous, vous, se). Devant une voyelle : m', t', s'.",
+      examples: [
+        { french: "Je m'appelle Léa.", english: 'My name is Léa.' },
+        { french: "Comment tu t'appelles ?", english: "What's your name? (informal)" },
+        { french: 'Ils s’appellent Omar et Inès.', english: 'Their names are Omar and Inès.' },
+      ],
       rows: [
         { pronoun: 'je', answer: "m'appelle" },
         { pronoun: 'tu', answer: "t'appelles" },
@@ -630,6 +670,14 @@ export const unit1: UnitContent = {
       verb: 'être',
       tense: 'Présent',
       english: 'to be',
+      group: 'irregular',
+      patternNote:
+        'Irrégulier — à mémoriser tel quel. Sert à la nationalité, la profession et beaucoup d’états (je suis fatigué).',
+      examples: [
+        { french: 'Je suis canadienne.', english: 'I am Canadian (f.).' },
+        { french: 'Nous sommes étudiants.', english: 'We are students.' },
+        { french: 'Vous êtes en forme ?', english: 'Are you feeling well?' },
+      ],
       rows: [
         { pronoun: 'je', answer: 'suis' },
         { pronoun: 'tu', answer: 'es' },
@@ -644,6 +692,14 @@ export const unit1: UnitContent = {
       verb: 'avoir',
       tense: 'Présent',
       english: 'to have',
+      group: 'irregular',
+      patternNote:
+        'Irrégulier. Âge et sensations : j’ai 20 ans, j’ai faim, j’ai froid — jamais « je suis 20 ans ».',
+      examples: [
+        { french: 'J’ai vingt-trois ans.', english: 'I am 23 years old.' },
+        { french: 'Tu as faim ?', english: 'Are you hungry?' },
+        { french: 'Ils ont une sœur.', english: 'They have a sister.' },
+      ],
       rows: [
         { pronoun: 'je', answer: 'ai' },
         { pronoun: 'tu', answer: 'as' },
@@ -658,6 +714,15 @@ export const unit1: UnitContent = {
       verb: 'venir',
       tense: 'Présent',
       english: 'to come',
+      group: 'irregular',
+      stem: 'ven',
+      patternNote:
+        'Comme tenir : je viens, nous venons, ils viennent. Origine : je viens du Canada, elle vient de France.',
+      examples: [
+        { french: 'Je viens du Canada.', english: 'I come from Canada.' },
+        { french: 'Vous venez d’où ?', english: 'Where do you come from?' },
+        { french: 'Ils viennent des États-Unis.', english: 'They come from the United States.' },
+      ],
       rows: [
         { pronoun: 'je', answer: 'viens' },
         { pronoun: 'tu', answer: 'viens' },
@@ -672,6 +737,14 @@ export const unit1: UnitContent = {
       verb: 'parler',
       tense: 'Présent',
       english: 'to speak',
+      group: 'er',
+      stem: 'parl',
+      patternNote: 'Régulier -er : je -e, tu -es, il -e, nous -ons, vous -ez, ils -ent (le -ent est muet).',
+      examples: [
+        { french: 'Je parle français.', english: 'I speak French.' },
+        { french: 'Tu parles quelles langues ?', english: 'Which languages do you speak?' },
+        { french: 'Nous parlons anglais aussi.', english: 'We speak English too.' },
+      ],
       rows: [
         { pronoun: 'je', answer: 'parle' },
         { pronoun: 'tu', answer: 'parles' },
@@ -686,6 +759,14 @@ export const unit1: UnitContent = {
       verb: 'habiter',
       tense: 'Présent',
       english: 'to live (in a place)',
+      group: 'er',
+      stem: 'habit',
+      patternNote: 'Régulier -er. Habiter à + ville : j’habite à Paris. Le h n’empêche pas j’habite.',
+      examples: [
+        { french: 'J’habite à Lyon.', english: 'I live in Lyon.' },
+        { french: 'Elle habite au Canada.', english: 'She lives in Canada.' },
+        { french: 'Vous habitez où ?', english: 'Where do you live?' },
+      ],
       rows: [
         { pronoun: 'je', answer: 'habite' },
         { pronoun: 'tu', answer: 'habites' },
@@ -700,6 +781,14 @@ export const unit1: UnitContent = {
       verb: 'travailler',
       tense: 'Présent',
       english: 'to work',
+      group: 'er',
+      stem: 'travaill',
+      patternNote: 'Régulier -er. Double l dans tout le tableau. Travailler à + lieu : il travaille à l’hôpital.',
+      examples: [
+        { french: 'Je travaille à Paris.', english: 'I work in Paris.' },
+        { french: 'Tu travailles où ?', english: 'Where do you work?' },
+        { french: 'Ils travaillent ensemble.', english: 'They work together.' },
+      ],
       rows: [
         { pronoun: 'je', answer: 'travaille' },
         { pronoun: 'tu', answer: 'travailles' },
@@ -714,6 +803,14 @@ export const unit1: UnitContent = {
       verb: 'étudier',
       tense: 'Présent',
       english: 'to study',
+      group: 'er',
+      stem: 'étudi',
+      patternNote: 'Régulier -er. Nous étudions : le i reste. J’étudie (élision du e de je).',
+      examples: [
+        { french: 'J’étudie le français.', english: 'I study French.' },
+        { french: 'Nous étudions à l’université.', english: 'We study at university.' },
+        { french: 'Elle étudie la médecine.', english: 'She studies medicine.' },
+      ],
       rows: [
         { pronoun: 'je', answer: 'étudie' },
         { pronoun: 'tu', answer: 'étudies' },
@@ -728,6 +825,15 @@ export const unit1: UnitContent = {
       verb: 'connaître',
       tense: 'Présent',
       english: 'to know (a person / a place)',
+      group: 'irregular',
+      stem: 'conna',
+      patternNote:
+        'Connaître une personne ou un lieu (pas un fait : ça, c’est savoir). Accent circonflexe à il/elle connaît.',
+      examples: [
+        { french: 'Je connais Marie.', english: 'I know Marie.' },
+        { french: 'Tu connais Paris ?', english: 'Do you know Paris?' },
+        { french: 'Nous connaissons ce quartier.', english: 'We know this neighbourhood.' },
+      ],
       rows: [
         { pronoun: 'je', answer: 'connais' },
         { pronoun: 'tu', answer: 'connais' },
@@ -742,6 +848,14 @@ export const unit1: UnitContent = {
       verb: 'rester',
       tense: 'Présent',
       english: 'to stay / to remain',
+      group: 'er',
+      stem: 'rest',
+      patternNote: 'Régulier -er. Rester à + lieu : je reste à la maison. Contraste avec partir.',
+      examples: [
+        { french: 'Je reste à la maison.', english: 'I’m staying home.' },
+        { french: 'On reste ici ?', english: 'Shall we stay here?' },
+        { french: 'Ils restent à l’hôtel.', english: 'They are staying at the hotel.' },
+      ],
       rows: [
         { pronoun: 'je', answer: 'reste' },
         { pronoun: 'tu', answer: 'restes' },

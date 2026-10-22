@@ -1,7 +1,8 @@
 import { useMemo, useState } from 'react';
-import type { MultipleChoiceExercise } from '../data/types';
+import type { MultipleChoiceExercise, SessionStepId } from '../data/types';
 import { QUIZ_SESSION_SIZE } from '../data/types';
 import { sampleSession } from '../lib/exerciseSession';
+import { ResultActions } from './ResultActions';
 
 export type QuizResult = {
   score: number;
@@ -11,10 +12,13 @@ export type QuizResult = {
 
 type Props = {
   questions: MultipleChoiceExercise[];
+  nextStep: SessionStepId | null;
   onComplete: (result: QuizResult) => void;
+  onHome: () => void;
+  onNext: (id: SessionStepId) => void;
 };
 
-export function Quiz({ questions, onComplete }: Props) {
+export function Quiz({ questions, nextStep, onComplete, onHome, onNext }: Props) {
   const session = useMemo(
     () => sampleSession(questions, QUIZ_SESSION_SIZE),
     [questions],
@@ -25,6 +29,7 @@ export function Quiz({ questions, onComplete }: Props) {
   const [missedIds, setMissedIds] = useState<string[]>([]);
   const [correctIds, setCorrectIds] = useState<string[]>([]);
   const [finished, setFinished] = useState(false);
+  const [reported, setReported] = useState(false);
 
   const q = session[index];
 
@@ -32,22 +37,26 @@ export function Quiz({ questions, onComplete }: Props) {
     if (selected !== null || !q) return;
     setSelected(optionIndex);
     const isCorrect = optionIndex === q.correctIndex;
-    const newCorrect = isCorrect ? correct + 1 : correct;
-    const nextMissed = isCorrect ? missedIds : [...missedIds, q.id];
-    const nextCorrectIds = isCorrect ? [...correctIds, q.id] : correctIds;
-    if (isCorrect) setCorrect(newCorrect);
-    setMissedIds(nextMissed);
-    setCorrectIds(nextCorrectIds);
+    if (isCorrect) setCorrect((n) => n + 1);
+    setMissedIds((ids) => (isCorrect ? ids : [...ids, q.id]));
+    setCorrectIds((ids) => (isCorrect ? [...ids, q.id] : ids));
+  };
 
-    setTimeout(() => {
-      if (index + 1 >= session.length) {
-        setFinished(true);
-        onComplete({ score: newCorrect, missedIds: nextMissed, correctIds: nextCorrectIds });
-      } else {
-        setIndex((i) => i + 1);
-        setSelected(null);
+  const goNext = () => {
+    if (selected === null || !q) return;
+    if (index + 1 >= session.length) {
+      const score = correct;
+      const missed = missedIds;
+      const okIds = correctIds;
+      setFinished(true);
+      if (!reported) {
+        setReported(true);
+        onComplete({ score, missedIds: missed, correctIds: okIds });
       }
-    }, 1200);
+      return;
+    }
+    setIndex((i) => i + 1);
+    setSelected(null);
   };
 
   if (finished) {
@@ -62,11 +71,14 @@ export function Quiz({ questions, onComplete }: Props) {
         {questions.length > session.length && (
           <p className="hint">Banque : {questions.length} questions — un nouveau set à chaque session</p>
         )}
+        <ResultActions nextStep={nextStep} onHome={onHome} onNext={onNext} />
       </div>
     );
   }
 
   if (!q) return null;
+
+  const last = index + 1 >= session.length;
 
   return (
     <div className="study-view">
@@ -99,7 +111,7 @@ export function Quiz({ questions, onComplete }: Props) {
           }
           return (
             <button
-              key={opt}
+              key={`${q.id}-${i}`}
               type="button"
               className={cls}
               onClick={() => choose(i)}
@@ -113,6 +125,12 @@ export function Quiz({ questions, onComplete }: Props) {
 
       {selected !== null && q.explanation && (
         <p className="explanation">{q.explanation}</p>
+      )}
+
+      {selected !== null && (
+        <button type="button" className="btn btn--primary btn--full" onClick={goNext}>
+          {last ? 'Voir le résultat' : 'Suivant'}
+        </button>
       )}
     </div>
   );
