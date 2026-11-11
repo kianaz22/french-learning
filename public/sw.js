@@ -1,44 +1,58 @@
-const CACHE = 'atelier-v4';
+const CACHE = 'atelier-v5';
 const BASE = self.location.pathname.replace(/sw\.js$/, '');
-const ASSETS = [
-  BASE,
-  `${BASE}index.html`,
-  `${BASE}manifest.webmanifest`,
-  `${BASE}favicon.svg`,
-  `${BASE}pwa-192.png`,
-  `${BASE}pwa-512.png`,
-];
 
 self.addEventListener('install', (event) => {
-  event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(ASSETS)));
-  self.skipWaiting();
+  event.waitUntil(self.skipWaiting());
 });
 
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k))),
-    ),
+    caches
+      .keys()
+      .then((keys) => Promise.all(keys.map((key) => caches.delete(key))))
+      .then(() => self.clients.claim()),
   );
-  self.clients.claim();
 });
 
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
 
-  event.respondWith(
-    caches.match(event.request).then((cached) => {
-      const fetched = fetch(event.request)
+  const url = new URL(event.request.url);
+  if (url.origin !== self.location.origin) return;
+  if (url.pathname.endsWith('/sw.js')) return;
+
+  const isDocument =
+    event.request.mode === 'navigate' ||
+    event.request.destination === 'document' ||
+    url.pathname.endsWith('/') ||
+    url.pathname.endsWith('.html');
+
+  if (isDocument) {
+    event.respondWith(
+      fetch(event.request)
         .then((response) => {
-          if (response.ok && event.request.url.startsWith(self.location.origin)) {
-            const clone = response.clone();
-            caches.open(CACHE).then((cache) => cache.put(event.request, clone));
+          if (response.ok) {
+            const copy = response.clone();
+            caches.open(CACHE).then((cache) => cache.put(event.request, copy));
           }
           return response;
         })
-        .catch(() => cached);
+        .catch(() =>
+          caches.match(event.request).then((cached) => cached || caches.match(`${BASE}index.html`)),
+        ),
+    );
+    return;
+  }
 
-      return cached || fetched;
-    }),
+  event.respondWith(
+    fetch(event.request)
+      .then((response) => {
+        if (response.ok) {
+          const copy = response.clone();
+          caches.open(CACHE).then((cache) => cache.put(event.request, copy));
+        }
+        return response;
+      })
+      .catch(() => caches.match(event.request)),
   );
 });

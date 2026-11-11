@@ -6,11 +6,20 @@ import './styles/global.css';
 
 if ('serviceWorker' in navigator) {
   if (import.meta.env.PROD) {
+    let refreshing = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (refreshing) return;
+      refreshing = true;
+      window.location.reload();
+    });
     window.addEventListener('load', () => {
       const base = import.meta.env.BASE_URL;
-      navigator.serviceWorker.register(`${base}sw.js`, { scope: base }).catch(() => {
-        /* offline support optional */
-      });
+      navigator.serviceWorker
+        .register(`${base}sw.js?v=5`, { scope: base, updateViaCache: 'none' })
+        .then((reg) => reg.update())
+        .catch(() => {
+          /* offline support optional */
+        });
     });
   } else {
     navigator.serviceWorker.getRegistrations().then((regs) => {

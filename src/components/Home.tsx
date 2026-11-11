@@ -119,7 +119,7 @@ export function Home({
       </section>
 
       <section className="lessons-section">
-        <h3 className="section-title">Tableau</h3>
+        <h3 className="section-title">Tableau — {units.length} unités</h3>
         <div className="unit-lesson-grid">
           {units.map((u) => {
             const status: CourseStatus = course.statuses[u.meta.number] ?? 'upcoming';
